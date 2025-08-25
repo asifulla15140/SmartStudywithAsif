@@ -57,7 +57,9 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
 
   Use the searchWeb tool to find accurate and up-to-date information on the topic.
 
-  Create lesson content in English and Kannada, tailored to the specified grade level and teaching methods.
+  IMPORTANT: You must generate content in both English and Kannada. Provide the English content in the 'englishContent', 'questionPaperEnglish', and 'answerKeyEnglish' fields. Provide the accurately translated Kannada content in the 'kannadaContent', 'questionPaperKannada', and 'answerKeyKannada' fields respectively. Do NOT mix languages in the output fields.
+
+  Create lesson content tailored to the specified grade level and teaching methods.
 
   {{#if isQuestionPaper}}
   Generate a comprehensive question paper for the given topic and grade level in both English and Kannada.
