@@ -27,6 +27,7 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
   const [answerKeyEnglish, setAnswerKeyEnglish] = useState('');
   const [questionPaperKannada, setQuestionPaperKannada] = useState('');
   const [answerKeyKannada, setAnswerKeyKannada] = useState('');
+  const [accordionValues, setAccordionValues] = useState<string[]>([]);
   const pdfRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,9 +43,17 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
     const input = pdfRef.current;
     if (input) {
       // Temporarily open all accordions for PDF export
-      const accordions = input.querySelectorAll<HTMLButtonElement>('[data-state="closed"]');
-      accordions.forEach(acc => acc.click());
+      const allAccordionValues = ['qp-en', 'ak-en', 'qp-kn', 'ak-kn'].filter(val => {
+        if (val === 'qp-en') return !!lessonContent?.questionPaperEnglish;
+        if (val === 'ak-en') return !!lessonContent?.answerKeyEnglish;
+        if (val === 'qp-kn') return !!lessonContent?.questionPaperKannada;
+        if (val === 'ak-kn') return !!lessonContent?.answerKeyKannada;
+        return false;
+      });
+      setAccordionValues(allAccordionValues);
 
+
+      // Allow time for accordions to open before capturing
       setTimeout(() => {
         html2canvas(input, { scale: 2 }).then((canvas) => {
           const imgData = canvas.toDataURL('image/png');
@@ -55,8 +64,8 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
           const canvasHeight = canvas.height;
           const ratio = canvasWidth / canvasHeight;
           const width = pdfWidth;
-          const height = width / ratio;
-
+          let height = width / ratio;
+          
           let position = 0;
           let heightLeft = height;
 
@@ -71,12 +80,11 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
           }
           
           pdf.save('lesson-plan.pdf');
-
+          
           // Close accordions back
-          const openAccordions = input.querySelectorAll<HTMLButtonElement>('[data-state="open"]');
-          openAccordions.forEach(acc => acc.click());
+          setAccordionValues([]);
         });
-      }, 200)
+      }, 500) // Increased timeout for safety
 
     }
   };
@@ -90,7 +98,8 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-12">
-            <p className="font-semibold mb-2">Still loading...</p>
+            <Presentation className="h-12 w-12 mb-4 animate-pulse" />
+            <p className="font-semibold mb-2">Generating your lesson...</p>
             <Skeleton className="h-4 w-3/4" />
           </div>
           <div className="space-y-2">
@@ -175,7 +184,7 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
             />
           </div>
            {hasQuestionPaper && (
-            <Accordion type="multiple" className="w-full mt-4">
+            <Accordion type="multiple" className="w-full mt-4" value={accordionValues} onValueChange={setAccordionValues}>
               {lessonContent.questionPaperEnglish && (
                 <AccordionItem value="qp-en">
                   <AccordionTrigger className="text-lg font-semibold font-headline">English Question Paper</AccordionTrigger>
