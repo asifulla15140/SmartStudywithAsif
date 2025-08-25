@@ -1,3 +1,4 @@
+
 // src/ai/flows/generate-lesson-content.ts
 'use server';
 
@@ -66,7 +67,7 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
 
   Use the searchWeb tool to find accurate and up-to-date information on the topic.
 
-  If the topic is about an author or multiple authors, you MUST include their names, a detailed biography, and information about their works in the lesson content for all three languages (English, Kannada, and Urdu). For broader topics like "Urdu Poetry," include information about several key authors.
+  If the topic is about an author or multiple authors, you MUST include their names, a detailed biography, and information about their works in the lesson content for all three languages (English, Kannada, and Urdu). For broader topics like "Urdu Poetry," you MUST provide a detailed overview of the subject and include information about several key authors and their significant works.
 
   MANDATORY INSTRUCTION: You MUST generate content in English, Kannada, and Urdu. All English content must go into the 'englishContent', 'questionPaperEnglish', 'answerKeyEnglish', 'repeatedQuestionsEnglish', and 'repeatedAnswersEnglish' fields. All Kannada content must be an accurate translation and must go into the 'kannadaContent', 'questionPaperKannada', 'answerKeyKannada', 'repeatedQuestionsKannada', and 'repeatedAnswersKannada' fields. All Urdu content must be an accurate translation and must go into the 'urduContent', 'questionPaperUrdu', 'answerKeyUrdu', 'repeatedQuestionsUrdu', and 'repeatedAnswersUrdu' fields. DO NOT mix languages within a field. English fields should only contain English. Kannada fields should only contain Kannada. Urdu fields should only contain Urdu. Ensure all content is properly escaped to produce valid JSON. This is a strict requirement.
 
@@ -104,3 +105,4 @@ const generateBilingualLessonContentFlow = ai.defineFlow(
     return output!;
   }
 );
+
