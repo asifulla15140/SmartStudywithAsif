@@ -16,6 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from "@/hooks/use-toast"
 import { generateSlides, type GenerateSlidesOutput } from '@/ai/flows/generate-slides';
+import { cn } from '@/lib/utils';
 
 interface LessonPreviewProps {
   lessonContent: LessonContent | null;
@@ -48,7 +49,10 @@ function EditableContent({ value, onChange, label, dir }: { value: string; onCha
                     textarea.style.height = `${textarea.scrollHeight}px`;
                 }}
                 onBlur={() => setIsEditing(false)}
-                className="w-full bg-slate-50 text-slate-900 text-sm p-3 rounded-md border border-ring"
+                className={cn(
+                    "w-full bg-slate-50 text-slate-900 text-sm p-3 rounded-md border border-ring",
+                    dir === 'rtl' && 'font-urdu text-lg'
+                )}
                 aria-label={label}
                 autoFocus
                 dir={dir}
@@ -59,7 +63,10 @@ function EditableContent({ value, onChange, label, dir }: { value: string; onCha
     return (
         <div
             onClick={() => setIsEditing(true)}
-            className="w-full min-h-[120px] bg-slate-50 text-slate-900 text-sm p-3 rounded-md whitespace-pre-wrap border border-input cursor-text"
+            className={cn(
+                "w-full min-h-[120px] bg-slate-50 text-slate-900 text-sm p-3 rounded-md whitespace-pre-wrap border border-input cursor-text",
+                 dir === 'rtl' && 'font-urdu text-lg'
+            )}
             dir={dir}
         >
             {value}
@@ -494,5 +501,3 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
     </Card>
   );
 }
-
-    
