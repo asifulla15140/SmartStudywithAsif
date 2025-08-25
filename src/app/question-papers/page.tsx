@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import type { GenerateBilingualLessonContentInput } from '@/ai/flows/generate-lesson-content';
+import type { GenerateBilingualLessonContentInput } from '@/lib/types';
 import { generateBilingualLessonContent } from '@/ai/flows/generate-lesson-content';
 import { LessonPreview } from '@/components/lesson-preview';
 import type { LessonContent } from '@/lib/types';

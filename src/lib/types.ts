@@ -1,22 +1,38 @@
 import { z } from 'zod';
 
-export interface LessonContent {
-  englishContent: string;
-  kannadaContent: string;
-  urduContent: string;
-  questionPaperEnglish?: string;
-  answerKeyEnglish?: string;
-  questionPaperKannada?: string;
-  answerKeyKannada?: string;
-  questionPaperUrdu?: string;
-  answerKeyUrdu?: string;
-  repeatedQuestionsEnglish?: string;
-  repeatedAnswersEnglish?: string;
-  repeatedQuestionsKannada?: string;
-  repeatedAnswersKannada?: string;
-  repeatedQuestionsUrdu?: string;
-  repeatedAnswersUrdu?: string;
-}
+export const GenerateBilingualLessonContentInputSchema = z.object({
+  topic: z.string().describe('The topic of the lesson.'),
+  gradeLevel: z.string().describe('The grade level for the lesson.'),
+  teachingMethods: z
+    .array(z.string())
+    .describe('The teaching methods to be used in the lesson.'),
+});
+export type GenerateBilingualLessonContentInput = z.infer<
+  typeof GenerateBilingualLessonContentInputSchema
+>;
+
+export const GenerateBilingualLessonContentOutputSchema = z.object({
+  englishContent: z.string().describe('The lesson content in English. If "Question Paper" is not a teaching method, this will be the primary content. If it is, this can be a summary or introduction.'),
+  kannadaContent: z.string().describe('The lesson content in Kannada. If "Question Paper" is not a teaching method, this will be the primary content. If it is, this can be a summary or introduction.'),
+  urduContent: z.string().describe('The lesson content in Urdu. If "Question Paper" is not a teaching method, this will be the primary content. If it is, this can be a summary or introduction.'),
+  questionPaperEnglish: z.string().optional().describe('The generated question paper in English. Only generated if "Question Paper" is a teaching method.'),
+  answerKeyEnglish: z.string().optional().describe('The answer key for the English question paper. Only generated if "Question Paper" is a teaching method.'),
+  questionPaperKannada: z.string().optional().describe('The generated question paper in Kannada. Only generated if "Question Paper" is a teaching method.'),
+  answerKeyKannada: z.string().optional().describe('The answer key for the Kannada question paper. Only generated if "Question Paper" is a teaching method.'),
+  questionPaperUrdu: z.string().optional().describe('The generated question paper in Urdu. Only generated if "Question Paper" is a teaching method.'),
+  answerKeyUrdu: z.string().optional().describe('The answer key for the Urdu question paper. Only generated if "Question Paper" is a teaching method.'),
+  repeatedQuestionsEnglish: z.string().optional().describe('A large set of extra repeated questions in English for teacher reference.'),
+  repeatedAnswersEnglish: z.string().optional().describe('Detailed answers for the repeated questions in English.'),
+  repeatedQuestionsKannada: z.string().optional().describe('A large set of extra repeated questions in Kannada for teacher reference.'),
+  repeatedAnswersKannada: z.string().optional().describe('Detailed answers for the repeated questions in Kannada.'),
+  repeatedQuestionsUrdu: z.string().optional().describe('A large set of extra repeated questions in Urdu for teacher reference.'),
+  repeatedAnswersUrdu: z.string().optional().describe('Detailed answers for the repeated questions in Urdu.'),
+});
+export type GenerateBilingualLessonContentOutput = z.infer<
+  typeof GenerateBilingualLessonContentOutputSchema
+>;
+
+export interface LessonContent extends GenerateBilingualLessonContentOutput {}
 
 export interface SavedLesson {
   id: string;

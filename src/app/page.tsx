@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { GenerateBilingualLessonContentInput } from '@/ai/flows/generate-lesson-content';
+import type { GenerateBilingualLessonContentInput } from '@/lib/types';
 import { generateBilingualLessonContent } from '@/ai/flows/generate-lesson-content';
 import { LessonCreatorForm } from '@/components/lesson-creator-form';
 import { LessonPreview } from '@/components/lesson-preview';

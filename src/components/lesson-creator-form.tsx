@@ -20,7 +20,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import type { GenerateBilingualLessonContentInput } from '@/ai/flows/generate-lesson-content';
+import type { GenerateBilingualLessonContentInput } from '@/lib/types';
 
 const formSchema = z.object({
   topic: z.string().min(2, {
