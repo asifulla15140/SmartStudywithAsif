@@ -4,30 +4,12 @@
  * @fileOverview Generates presentation slides from lesson content.
  *
  * - generateSlides - A function that generates presentation slides.
- * - GenerateSlidesInput - The input type for the generateSlides function.
- * - GenerateSlidesOutput - The return type for the generateSlides function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-
-const SlideSchema = z.object({
-  title: z.string().describe('The title of the slide.'),
-  content: z.string().describe('The main content of the slide, formatted as markdown.'),
-  speakerNotes: z.string().describe('Speaker notes for the slide.'),
-});
-
-export const GenerateSlidesInputSchema = z.object({
-  lessonContent: z.string().describe("The full content of the lesson to be converted into slides."),
-  topic: z.string().describe('The topic of the lesson.'),
-  gradeLevel: z.string().describe('The grade level for the lesson.'),
-});
-export type GenerateSlidesInput = z.infer<typeof GenerateSlidesInputSchema>;
-
-export const GenerateSlidesOutputSchema = z.object({
-  slides: z.array(SlideSchema).describe('An array of slide objects.'),
-});
-export type GenerateSlidesOutput = z.infer<typeof GenerateSlidesOutputSchema>;
+import type { GenerateSlidesInput, GenerateSlidesOutput } from '@/lib/types';
+import { GenerateSlidesInputSchema, GenerateSlidesOutputSchema, SlideSchema } from '@/lib/types';
 
 
 export async function generateSlides(
