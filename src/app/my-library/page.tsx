@@ -39,7 +39,9 @@ export default function MyLibraryPage() {
   const handleDeleteLesson = (id: string) => {
     const updatedLessons = savedLessons.filter(lesson => lesson.id !== id);
     setSavedLessons(updatedLessons);
-    localStorage.setItem('savedLessons', JSON.stringify(updatedLessons));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('savedLessons', JSON.stringify(updatedLessons));
+    }
   };
 
   if (!isClient) {
