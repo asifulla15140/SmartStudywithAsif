@@ -46,12 +46,12 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
   Generate a comprehensive and challenging question paper for the given topic and grade level, suitable for preparing students for exams up to the year 2025. The questions should be long and descriptive, not short or abrupt.
   The question paper should be well-structured and suitable for printing. Use a variety of question types (e.g., multiple choice, fill-in-the-blanks, short answer, long answer, essay writing, letter writing, and grammar exercises).
   Use a clear and organized formatting structure with Roman numerals (I, II, III) for sections, numbers (1, 2, 3) for questions, and letters (a, b, c) for sub-questions or options.
-  
+
   Also, provide a separate, detailed answer key for each question paper. The answer key's format must correspond exactly to the question paper's format for easy reference. For subjective questions like essays or letter writing, you MUST provide a full, detailed model answer, not just key points. The answers should be comprehensive and provide a complete response to the question.
 
   The 'englishContent', 'kannadaContent', and 'urduContent' fields can contain a brief introduction or summary for the lesson.
   {{else}}
-  Generate the lesson content based on the provided teaching methods.
+  Generate the lesson content based on the provided teaching methods. For any fields that are not applicable (e.g., question papers, answer keys), you MUST include them in the JSON response with an empty string "" as their value.
   {{/if}}
 
   Additionally, generate a large set of at least 10 extra, frequently repeated questions with their detailed answers for all three languages. These should be placed in the 'repeatedQuestions' and 'repeatedAnswers' fields for each language and are intended for private teacher reference.`,
@@ -65,7 +65,7 @@ const generateBilingualLessonContentFlow = ai.defineFlow(
   },
   async (input) => {
     const isQuestionPaper = input.teachingMethods.includes('Question Paper');
-    
+
     const augmentedInput = {
       ...input,
       isQuestionPaper,
