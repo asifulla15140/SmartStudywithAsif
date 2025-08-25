@@ -67,7 +67,7 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
   Create lesson content tailored to the specified grade level and teaching methods.
 
   {{#if isQuestionPaper}}
-  Generate a comprehensive question paper for the given topic and grade level in English, Kannada, and Urdu. The questions should be long and descriptive, not short or abrupt.
+  Generate a comprehensive and challenging question paper for the given topic and grade level, suitable for preparing students for exams up to the year 2025. The questions should be long and descriptive, not short or abrupt.
   The question paper should be well-structured and suitable for printing. Use a variety of question types (e.g., multiple choice, fill-in-the-blanks, short answer, long answer, essay writing, letter writing, and grammar exercises).
   Use a clear and organized formatting structure with Roman numerals (I, II, III) for sections, numbers (1, 2, 3) for questions, and letters (a, b, c) for sub-questions or options.
   
