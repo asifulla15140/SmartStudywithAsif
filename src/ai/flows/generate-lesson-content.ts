@@ -34,6 +34,12 @@ const GenerateBilingualLessonContentOutputSchema = z.object({
   answerKeyKannada: z.string().optional().describe('The answer key for the Kannada question paper. Only generated if "Question Paper" is a teaching method.'),
   questionPaperUrdu: z.string().optional().describe('The generated question paper in Urdu. Only generated if "Question Paper" is a teaching method.'),
   answerKeyUrdu: z.string().optional().describe('The answer key for the Urdu question paper. Only generated if "Question Paper" is a teaching method.'),
+  repeatedQuestionsEnglish: z.string().optional().describe('Extra repeated questions in English for teacher reference.'),
+  repeatedAnswersEnglish: z.string().optional().describe('Answers for the repeated questions in English.'),
+  repeatedQuestionsKannada: z.string().optional().describe('Extra repeated questions in Kannada for teacher reference.'),
+  repeatedAnswersKannada: z.string().optional().describe('Answers for the repeated questions in Kannada.'),
+  repeatedQuestionsUrdu: z.string().optional().describe('Extra repeated questions in Urdu for teacher reference.'),
+  repeatedAnswersUrdu: z.string().optional().describe('Answers for the repeated questions in Urdu.'),
 });
 export type GenerateBilingualLessonContentOutput = z.infer<
   typeof GenerateBilingualLessonContentOutputSchema
@@ -62,7 +68,7 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
 
   If the topic is about an author or multiple authors, you MUST include their names, a detailed biography, and information about their works in the lesson content for all three languages (English, Kannada, and Urdu). For broader topics like "Urdu Poetry," include information about several key authors.
 
-  MANDATORY INSTRUCTION: You MUST generate content in English, Kannada, and Urdu. All English content must go into the 'englishContent', 'questionPaperEnglish', and 'answerKeyEnglish' fields. All Kannada content must be an accurate translation and must go into the 'kannadaContent', 'questionPaperKannada', and 'answerKeyKannada' fields. All Urdu content must be an accurate translation and must go into the 'urduContent', 'questionPaperUrdu', and 'answerKeyUrdu' fields. DO NOT mix languages within a field. English fields should only contain English. Kannada fields should only contain Kannada. Urdu fields should only contain Urdu. Ensure all content is properly escaped to produce valid JSON. This is a strict requirement.
+  MANDATORY INSTRUCTION: You MUST generate content in English, Kannada, and Urdu. All English content must go into the 'englishContent', 'questionPaperEnglish', 'answerKeyEnglish', 'repeatedQuestionsEnglish', and 'repeatedAnswersEnglish' fields. All Kannada content must be an accurate translation and must go into the 'kannadaContent', 'questionPaperKannada', 'answerKeyKannada', 'repeatedQuestionsKannada', and 'repeatedAnswersKannada' fields. All Urdu content must be an accurate translation and must go into the 'urduContent', 'questionPaperUrdu', 'answerKeyUrdu', 'repeatedQuestionsUrdu', and 'repeatedAnswersUrdu' fields. DO NOT mix languages within a field. English fields should only contain English. Kannada fields should only contain Kannada. Urdu fields should only contain Urdu. Ensure all content is properly escaped to produce valid JSON. This is a strict requirement.
 
   Create lesson content tailored to the specified grade level and teaching methods.
 
@@ -76,7 +82,9 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
   The 'englishContent', 'kannadaContent', and 'urduContent' fields can contain a brief introduction or summary for the lesson.
   {{else}}
   Generate the lesson content based on the provided teaching methods.
-  {{/if}}`,
+  {{/if}}
+
+  Additionally, generate a set of extra, frequently repeated questions with their detailed answers for all three languages. These should be placed in the 'repeatedQuestions' and 'repeatedAnswers' fields for each language and are intended for private teacher reference.`,
 });
 
 const generateBilingualLessonContentFlow = ai.defineFlow(

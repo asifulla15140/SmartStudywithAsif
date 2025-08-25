@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Download, Save, File, Presentation, AlertCircle, Check, Sparkles } from 'lucide-react';
+import { Download, Save, File, Presentation, AlertCircle, Check, Sparkles, KeyRound } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { nanoid } from 'nanoid';
@@ -33,6 +33,12 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
   const [answerKeyKannada, setAnswerKeyKannada] = useState('');
   const [questionPaperUrdu, setQuestionPaperUrdu] = useState('');
   const [answerKeyUrdu, setAnswerKeyUrdu] = useState('');
+  const [repeatedQuestionsEnglish, setRepeatedQuestionsEnglish] = useState('');
+  const [repeatedAnswersEnglish, setRepeatedAnswersEnglish] = useState('');
+  const [repeatedQuestionsKannada, setRepeatedQuestionsKannada] = useState('');
+  const [repeatedAnswersKannada, setRepeatedAnswersKannada] = useState('');
+  const [repeatedQuestionsUrdu, setRepeatedQuestionsUrdu] = useState('');
+  const [repeatedAnswersUrdu, setRepeatedAnswersUrdu] = useState('');
   const [accordionValues, setAccordionValues] = useState<string[]>([]);
   const pdfRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -51,6 +57,12 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
     setAnswerKeyKannada(lessonContent?.answerKeyKannada || '');
     setQuestionPaperUrdu(lessonContent?.questionPaperUrdu || '');
     setAnswerKeyUrdu(lessonContent?.answerKeyUrdu || '');
+    setRepeatedQuestionsEnglish(lessonContent?.repeatedQuestionsEnglish || '');
+    setRepeatedAnswersEnglish(lessonContent?.repeatedAnswersEnglish || '');
+    setRepeatedQuestionsKannada(lessonContent?.repeatedQuestionsKannada || '');
+    setRepeatedAnswersKannada(lessonContent?.repeatedAnswersKannada || '');
+    setRepeatedQuestionsUrdu(lessonContent?.repeatedQuestionsUrdu || '');
+    setRepeatedAnswersUrdu(lessonContent?.repeatedAnswersUrdu || '');
   }, [lessonContent]);
 
   const handleExportPdf = async () => {
@@ -59,7 +71,7 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
 
     setIsExporting(true);
 
-    const allAccordionValues = ['qp-en', 'ak-en', 'qp-kn', 'ak-kn', 'qp-ur', 'ak-ur'].filter(val => {
+    const allAccordionValues = ['qp-en', 'ak-en', 'qp-kn', 'ak-kn', 'qp-ur', 'ak-ur', 'rq-en', 'ra-en', 'rq-kn', 'ra-kn', 'rq-ur', 'ra-ur' ].filter(val => {
       switch (val) {
         case 'qp-en': return !!lessonContent.questionPaperEnglish;
         case 'ak-en': return !!lessonContent.answerKeyEnglish;
@@ -67,6 +79,12 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
         case 'ak-kn': return !!lessonContent.answerKeyKannada;
         case 'qp-ur': return !!lessonContent.questionPaperUrdu;
         case 'ak-ur': return !!lessonContent.answerKeyUrdu;
+        case 'rq-en': return !!lessonContent.repeatedQuestionsEnglish;
+        case 'ra-en': return !!lessonContent.repeatedAnswersEnglish;
+        case 'rq-kn': return !!lessonContent.repeatedQuestionsKannada;
+        case 'ra-kn': return !!lessonContent.repeatedAnswersKannada;
+        case 'rq-ur': return !!lessonContent.repeatedQuestionsUrdu;
+        case 'ra-ur': return !!lessonContent.repeatedAnswersUrdu;
         default: return false;
       }
     });
@@ -146,7 +164,6 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
       const newLesson: SavedLesson = {
         id: nanoid(),
         topic: "Lesson Plan", // Placeholder topic
-        savedAt: new Date().toISOString(),
         lessonContent: {
           englishContent: english,
           kannadaContent: kannada,
@@ -157,6 +174,12 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
           answerKeyKannada: answerKeyKannada,
           questionPaperUrdu: questionPaperUrdu,
           answerKeyUrdu: answerKeyUrdu,
+          repeatedQuestionsEnglish: repeatedQuestionsEnglish,
+          repeatedAnswersEnglish: repeatedAnswersEnglish,
+          repeatedQuestionsKannada: repeatedQuestionsKannada,
+          repeatedAnswersKannada: repeatedAnswersKannada,
+          repeatedQuestionsUrdu: repeatedQuestionsUrdu,
+          repeatedAnswersUrdu: repeatedAnswersUrdu,
         },
       };
       savedLessons.unshift(newLesson);
@@ -290,6 +313,8 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
   }
 
   const hasQuestionPaper = lessonContent.questionPaperEnglish || lessonContent.questionPaperKannada || lessonContent.questionPaperUrdu;
+  const hasRepeatedQuestions = lessonContent.repeatedQuestionsEnglish || lessonContent.repeatedQuestionsKannada || lessonContent.repeatedQuestionsUrdu;
+
 
   return (
     <Card className="sticky top-6">
@@ -413,6 +438,97 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
               )}
             </Accordion>
           )}
+
+           {hasRepeatedQuestions && (
+            <div className="mt-6 pt-4 border-t-2 border-dashed">
+              <div className="flex items-center gap-2 text-amber-600 mb-4">
+                <KeyRound className="h-5 w-5"/>
+                <h3 className="text-lg font-semibold font-headline">Private Teacher Reference</h3>
+              </div>
+               <Accordion type="multiple" className="w-full" value={accordionValues} onValueChange={setAccordionValues}>
+                {lessonContent.repeatedQuestionsEnglish && (
+                  <AccordionItem value="rq-en">
+                    <AccordionTrigger className="text-base font-semibold text-slate-800">Repeated Questions (English)</AccordionTrigger>
+                    <AccordionContent>
+                      <Textarea
+                        value={repeatedQuestionsEnglish}
+                        onChange={(e) => setRepeatedQuestionsEnglish(e.target.value)}
+                        className="h-48 bg-slate-50 text-slate-900"
+                        aria-label="Repeated questions in English"
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+                {lessonContent.repeatedAnswersEnglish && (
+                  <AccordionItem value="ra-en">
+                    <AccordionTrigger className="text-base font-semibold text-slate-800">Repeated Answers (English)</AccordionTrigger>
+                    <AccordionContent>
+                      <Textarea
+                        value={repeatedAnswersEnglish}
+                        onChange={(e) => setRepeatedAnswersEnglish(e.target.value)}
+                        className="h-48 bg-slate-50 text-slate-900"
+                        aria-label="Repeated answers in English"
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+                {lessonContent.repeatedQuestionsKannada && (
+                  <AccordionItem value="rq-kn">
+                    <AccordionTrigger className="text-base font-semibold text-slate-800">ಪುನರಾವರ್ತಿತ ಪ್ರಶ್ನೆಗಳು (ಕನ್ನಡ)</AccordionTrigger>
+                    <AccordionContent>
+                      <Textarea
+                        value={repeatedQuestionsKannada}
+                        onChange={(e) => setRepeatedQuestionsKannada(e.target.value)}
+                        className="h-48 bg-slate-50 text-slate-900"
+                        aria-label="Repeated questions in Kannada"
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+                {lessonContent.repeatedAnswersKannada && (
+                  <AccordionItem value="ra-kn">
+                    <AccordionTrigger className="text-base font-semibold text-slate-800">ಪುನರಾವರ್ತಿತ ಉತ್ತರಗಳು (ಕನ್ನಡ)</AccordionTrigger>
+                    <AccordionContent>
+                      <Textarea
+                        value={repeatedAnswersKannada}
+                        onChange={(e) => setRepeatedAnswersKannada(e.target.value)}
+                        className="h-48 bg-slate-50 text-slate-900"
+                        aria-label="Repeated answers in Kannada"
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+                 {lessonContent.repeatedQuestionsUrdu && (
+                  <AccordionItem value="rq-ur">
+                    <AccordionTrigger className="text-base font-semibold text-slate-800">بار بار پوچھے گئے سوالات (اردو)</AccordionTrigger>
+                    <AccordionContent>
+                      <Textarea
+                        value={repeatedQuestionsUrdu}
+                        onChange={(e) => setRepeatedQuestionsUrdu(e.target.value)}
+                        className="h-48 bg-slate-50 text-slate-900 rtl"
+                        aria-label="Repeated questions in Urdu"
+                        dir="rtl"
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+                {lessonContent.repeatedAnswersUrdu && (
+                  <AccordionItem value="ra-ur">
+                    <AccordionTrigger className="text-base font-semibold text-slate-800">بار بار پوچھے گئے جوابات (اردو)</AccordionTrigger>
+                    <AccordionContent>
+                      <Textarea
+                        value={repeatedAnswersUrdu}
+                        onChange={(e) => setRepeatedAnswersUrdu(e.target.value)}
+                        className="h-48 bg-slate-50 text-slate-900 rtl"
+                        aria-label="Repeated answers in Urdu"
+                        dir="rtl"
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+              </Accordion>
+            </div>
+           )}
         </div>
         <Separator />
         <div className="flex flex-wrap gap-2">

@@ -3,13 +3,19 @@ import { z } from 'zod';
 export interface LessonContent {
   englishContent: string;
   kannadaContent: string;
-  urduContent?: string;
+  urduContent: string;
   questionPaperEnglish?: string;
   answerKeyEnglish?: string;
   questionPaperKannada?: string;
   answerKeyKannada?: string;
   questionPaperUrdu?: string;
   answerKeyUrdu?: string;
+  repeatedQuestionsEnglish?: string;
+  repeatedAnswersEnglish?: string;
+  repeatedQuestionsKannada?: string;
+  repeatedAnswersKannada?: string;
+  repeatedQuestionsUrdu?: string;
+  repeatedAnswersUrdu?: string;
 }
 
 export interface SavedLesson {
