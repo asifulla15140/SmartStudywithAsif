@@ -85,7 +85,7 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
   Generate the lesson content based on the provided teaching methods.
   {{/if}}
 
-  Additionally, generate a set of extra, frequently repeated questions with their detailed answers for all three languages. These should be placed in the 'repeatedQuestions' and 'repeatedAnswers' fields for each language and are intended for private teacher reference.`,
+  Additionally, generate a large set of at least 10 extra, frequently repeated questions with their detailed answers for all three languages. These should be placed in the 'repeatedQuestions' and 'repeatedAnswers' fields for each language and are intended for private teacher reference.`,
 });
 
 const generateBilingualLessonContentFlow = ai.defineFlow(
