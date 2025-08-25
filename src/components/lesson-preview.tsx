@@ -29,6 +29,8 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
   const [answerKeyKannada, setAnswerKeyKannada] = useState('');
   const [accordionValues, setAccordionValues] = useState<string[]>([]);
   const pdfRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
+
 
   useEffect(() => {
     setEnglish(lessonContent?.englishContent || '');
@@ -39,55 +41,91 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
     setAnswerKeyKannada(lessonContent?.answerKeyKannada || '');
   }, [lessonContent]);
 
-  const handleExportPdf = () => {
+  const handleExportPdf = async () => {
     const input = pdfRef.current;
-    if (input) {
-      // Temporarily open all accordions for PDF export
-      const allAccordionValues = ['qp-en', 'ak-en', 'qp-kn', 'ak-kn'].filter(val => {
-        if (val === 'qp-en') return !!lessonContent?.questionPaperEnglish;
-        if (val === 'ak-en') return !!lessonContent?.answerKeyEnglish;
-        if (val === 'qp-kn') return !!lessonContent?.questionPaperKannada;
-        if (val === 'ak-kn') return !!lessonContent?.answerKeyKannada;
-        return false;
-      });
-      setAccordionValues(allAccordionValues);
+    if (!input || !lessonContent) return;
 
+    setIsExporting(true);
 
-      // Allow time for accordions to open before capturing
-      setTimeout(() => {
-        html2canvas(input, { scale: 2 }).then((canvas) => {
-          const imgData = canvas.toDataURL('image/png');
-          const pdf = new jsPDF('p', 'px', 'a4');
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = pdf.internal.pageSize.getHeight();
-          const canvasWidth = canvas.width;
-          const canvasHeight = canvas.height;
-          const ratio = canvasWidth / canvasHeight;
-          const width = pdfWidth;
-          let height = width / ratio;
-          
-          let position = 0;
-          let heightLeft = height;
+    // Open all accordions
+    const allAccordionValues = ['qp-en', 'ak-en', 'qp-kn', 'ak-kn'].filter(val => {
+      switch (val) {
+        case 'qp-en': return !!lessonContent.questionPaperEnglish;
+        case 'ak-en': return !!lessonContent.answerKeyEnglish;
+        case 'qp-kn': return !!lessonContent.questionPaperKannada;
+        case 'ak-kn': return !!lessonContent.answerKeyKannada;
+        default: return false;
+      }
+    });
+    setAccordionValues(allAccordionValues);
 
-          pdf.addImage(imgData, 'PNG', 0, position, width, height);
-          heightLeft -= pdfHeight;
+    // Wait for accordions to render open
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-          while (heightLeft > 0) {
-            position = heightLeft - height;
-            pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 0, position, width, height);
-            heightLeft -= pdfHeight;
-          }
-          
-          pdf.save('lesson-plan.pdf');
-          
-          // Close accordions back
-          setAccordionValues([]);
+    try {
+        const canvas = await html2canvas(input, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            // Allow tainting to handle potential cross-origin images, if any.
+            allowTaint: true, 
+            onclone: (document) => {
+              // On clone, find all textareas and replace them with divs
+              // This is because html2canvas has trouble with textarea content.
+              Array.from(document.querySelectorAll('textarea')).forEach(textArea => {
+                  const div = document.createElement('div');
+                  div.style.width = `${textArea.offsetWidth}px`;
+                  div.style.height = `${textArea.offsetHeight}px`;
+                  div.style.border = '1px solid #ccc';
+                  div.style.borderRadius = '0.375rem';
+                  div.style.padding = '0.5rem';
+                  div.style.whiteSpace = 'pre-wrap';
+                  div.style.wordWrap = 'break-word';
+                  div.style.fontSize = '14px';
+                  div.style.fontFamily = 'sans-serif';
+                  div.style.color = 'black';
+                  div.innerText = textArea.value;
+                  textArea.parentNode?.replaceChild(div, textArea);
+              });
+            }
         });
-      }, 500) // Increased timeout for safety
 
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'pt', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+
+        const ratio = canvasWidth / canvasHeight;
+        const widthInPdf = pdfWidth;
+        const heightInPdf = widthInPdf / ratio;
+
+        let heightLeft = heightInPdf;
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 0, position, widthInPdf, heightInPdf);
+        heightLeft -= pdfHeight;
+
+        while (heightLeft > 0) {
+            position = position - pdfHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, widthInPdf, heightInPdf);
+            heightLeft -= pdfHeight;
+        }
+
+        pdf.save('lesson-plan.pdf');
+    } catch (e) {
+        console.error("Error exporting PDF:", e);
+        // You might want to show a toast or an alert to the user here
+    } finally {
+        // Close accordions back
+        setAccordionValues([]);
+        setIsExporting(false);
     }
-  };
+};
+
 
   if (isLoading) {
     return (
@@ -242,9 +280,11 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
         </div>
         <Separator />
         <div className="flex flex-wrap gap-2">
-          <Button><Save /> Save to Library</Button>
-          <Button variant="outline" onClick={handleExportPdf}><Download /> Export PDF</Button>
-          <Button variant="outline"><Presentation /> Export Slides</Button>
+          <Button disabled={isExporting}><Save /> Save to Library</Button>
+          <Button variant="outline" onClick={handleExportPdf} disabled={isExporting}>
+            {isExporting ? 'Exporting...' : <><Download /> Export PDF</>}
+            </Button>
+          <Button variant="outline" disabled={isExporting}><Presentation /> Export Slides</Button>
         </div>
       </CardContent>
     </Card>
