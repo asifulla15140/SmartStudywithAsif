@@ -10,6 +10,7 @@ import type { LessonContent } from '@/lib/types';
 
 export default function Home() {
   const [lessonContent, setLessonContent] = useState<LessonContent | null>(null);
+  const [topic, setTopic] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast()
@@ -18,6 +19,7 @@ export default function Home() {
     setIsLoading(true);
     setError(null);
     setLessonContent(null);
+    setTopic(data.topic);
     try {
       const result = await generateBilingualLessonContent(data);
       if (result) {
@@ -41,7 +43,7 @@ export default function Home() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-4 sm:p-6">
       <LessonCreatorForm onGenerate={handleGenerateLesson} isLoading={isLoading} />
-      <LessonPreview lessonContent={lessonContent} isLoading={isLoading} error={error} />
+      <LessonPreview lessonContent={lessonContent} topic={topic} isLoading={isLoading} error={error} />
     </div>
   );
 }

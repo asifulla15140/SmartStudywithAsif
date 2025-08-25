@@ -47,6 +47,7 @@ interface QuestionPaperGeneratorProps {
 
 function QuestionPaperGenerator({ type }: QuestionPaperGeneratorProps) {
   const [subject, setSubject] = useState('');
+  const [topic, setTopic] = useState<string | null>(null);
   const [lessonContent, setLessonContent] = useState<LessonContent | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,8 +68,11 @@ function QuestionPaperGenerator({ type }: QuestionPaperGeneratorProps) {
     setError(null);
     setLessonContent(null);
     
+    const generatedTopic = `${subject} - ${type} Question Paper`;
+    setTopic(generatedTopic);
+
     const input: GenerateBilingualLessonContentInput = {
-      topic: `${subject} - ${type} Question Paper`,
+      topic: generatedTopic,
       gradeLevel: 'Grade 10',
       teachingMethods: ['Question Paper'],
     };
@@ -119,7 +123,7 @@ function QuestionPaperGenerator({ type }: QuestionPaperGeneratorProps) {
             </CardContent>
         </Card>
 
-      <LessonPreview lessonContent={lessonContent} isLoading={isLoading} error={error} />
+      <LessonPreview lessonContent={lessonContent} topic={topic} isLoading={isLoading} error={error} />
     </div>
   );
 }

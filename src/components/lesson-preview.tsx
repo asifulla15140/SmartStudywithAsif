@@ -19,11 +19,12 @@ import { generateSlides, type GenerateSlidesOutput } from '@/ai/flows/generate-s
 
 interface LessonPreviewProps {
   lessonContent: LessonContent | null;
+  topic: string | null;
   isLoading: boolean;
   error: string | null;
 }
 
-export function LessonPreview({ lessonContent, isLoading, error }: LessonPreviewProps) {
+export function LessonPreview({ lessonContent, topic, isLoading, error }: LessonPreviewProps) {
   const [english, setEnglish] = useState('');
   const [kannada, setKannada] = useState('');
   const [urdu, setUrdu] = useState('');
@@ -157,13 +158,14 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
   };
 
   const handleSaveToLibrary = () => {
-    if (!lessonContent) return;
+    if (!lessonContent || !topic) return;
     setIsSaving(true);
     try {
       const savedLessons: SavedLesson[] = JSON.parse(localStorage.getItem('savedLessons') || '[]');
       const newLesson: SavedLesson = {
         id: nanoid(),
-        topic: "Lesson Plan", // Placeholder topic
+        topic: topic,
+        savedAt: new Date().toISOString(),
         lessonContent: {
           englishContent: english,
           kannadaContent: kannada,
@@ -219,7 +221,7 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
 
       const result = await generateSlides({
         lessonContent: fullContent,
-        topic: 'Generated Lesson',
+        topic: topic || 'Generated Lesson',
         gradeLevel: 'Any',
       });
       
@@ -319,7 +321,7 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
   return (
     <Card className="sticky top-6">
       <CardHeader>
-        <CardTitle className="font-headline">Generated Lesson</CardTitle>
+        <CardTitle className="font-headline">{topic || 'Generated Lesson'}</CardTitle>
         <CardDescription>Review and edit the content below. You can save or export it.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -532,7 +534,7 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
         </div>
         <Separator />
         <div className="flex flex-wrap gap-2">
-          <Button onClick={handleSaveToLibrary} disabled={isSaving}>
+          <Button onClick={handleSaveToLibrary} disabled={isSaving || !topic}>
             {isSaving ? 'Saving...' : <><Save /> Save to Library</>}
           </Button>
           <Button variant="outline" onClick={handleExportPdf} disabled={isExporting}>
