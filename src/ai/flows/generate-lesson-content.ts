@@ -2,9 +2,9 @@
 'use server';
 
 /**
- * @fileOverview Generates lesson content in English and Kannada based on specified topic, grade level, and teaching methods.
+ * @fileOverview Generates lesson content in English, Kannada, and Urdu based on specified topic, grade level, and teaching methods.
  *
- * - generateBilingualLessonContent - A function that generates the bilingual lesson content.
+ * - generateBilingualLessonContent - A function that generates the lesson content.
  * - GenerateBilingualLessonContentInput - The input type for the generateBilingualLessonContent function.
  * - GenerateBilingualLessonContentOutput - The return type for the generateBilingualLessonContent function.
  */
@@ -27,10 +27,13 @@ export type GenerateBilingualLessonContentInput = z.infer<
 const GenerateBilingualLessonContentOutputSchema = z.object({
   englishContent: z.string().describe('The lesson content in English. If "Question Paper" is not a teaching method, this will be the primary content. If it is, this can be a summary or introduction.'),
   kannadaContent: z.string().describe('The lesson content in Kannada. If "Question Paper" is not a teaching method, this will be the primary content. If it is, this can be a summary or introduction.'),
+  urduContent: z.string().describe('The lesson content in Urdu. If "Question Paper" is not a teaching method, this will be the primary content. If it is, this can be a summary or introduction.'),
   questionPaperEnglish: z.string().optional().describe('The generated question paper in English. Only generated if "Question Paper" is a teaching method.'),
   answerKeyEnglish: z.string().optional().describe('The answer key for the English question paper. Only generated if "Question Paper" is a teaching method.'),
   questionPaperKannada: z.string().optional().describe('The generated question paper in Kannada. Only generated if "Question Paper" is a teaching method.'),
   answerKeyKannada: z.string().optional().describe('The answer key for the Kannada question paper. Only generated if "Question Paper" is a teaching method.'),
+  questionPaperUrdu: z.string().optional().describe('The generated question paper in Urdu. Only generated if "Question Paper" is a teaching method.'),
+  answerKeyUrdu: z.string().optional().describe('The answer key for the Urdu question paper. Only generated if "Question Paper" is a teaching method.'),
 });
 export type GenerateBilingualLessonContentOutput = z.infer<
   typeof GenerateBilingualLessonContentOutputSchema
@@ -49,7 +52,7 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
   })},
   output: {schema: GenerateBilingualLessonContentOutputSchema},
   tools: [searchWeb],
-  prompt: `You are an experienced teacher creating a bilingual lesson plan.
+  prompt: `You are an experienced teacher creating a lesson plan in English, Kannada, and Urdu.
 
   Topic: {{{topic}}}
   Grade Level: {{{gradeLevel}}}
@@ -57,18 +60,18 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
 
   Use the searchWeb tool to find accurate and up-to-date information on the topic.
 
-  MANDATORY INSTRUCTION: You MUST generate content in both English and Kannada. All English content must go into the 'englishContent', 'questionPaperEnglish', and 'answerKeyEnglish' fields. All Kannada content must be an accurate translation and must go into the 'kannadaContent', 'questionPaperKannada', and 'answerKeyKannada' fields. DO NOT mix languages within a field. English fields should only contain English. Kannada fields should only contain Kannada. This is a strict requirement.
+  MANDATORY INSTRUCTION: You MUST generate content in English, Kannada, and Urdu. All English content must go into the 'englishContent', 'questionPaperEnglish', and 'answerKeyEnglish' fields. All Kannada content must be an accurate translation and must go into the 'kannadaContent', 'questionPaperKannada', and 'answerKeyKannada' fields. All Urdu content must be an accurate translation and must go into the 'urduContent', 'questionPaperUrdu', and 'answerKeyUrdu' fields. DO NOT mix languages within a field. English fields should only contain English. Kannada fields should only contain Kannada. Urdu fields should only contain Urdu. This is a strict requirement.
 
   Create lesson content tailored to the specified grade level and teaching methods.
 
   {{#if isQuestionPaper}}
-  Generate a comprehensive question paper for the given topic and grade level in both English and Kannada. The questions should be long and descriptive, not short or abrupt.
+  Generate a comprehensive question paper for the given topic and grade level in English, Kannada, and Urdu. The questions should be long and descriptive, not short or abrupt.
   The question paper should be well-structured and suitable for printing. Use a variety of question types (e.g., multiple choice, fill-in-the-blanks, short answer, long answer, essay writing, letter writing, and grammar exercises).
   Use a clear and organized formatting structure with Roman numerals (I, II, III) for sections, numbers (1, 2, 3) for questions, and letters (a, b, c) for sub-questions or options.
   
   Also, provide a separate, detailed answer key for each question paper. The answer key's format must correspond exactly to the question paper's format for easy reference. For subjective questions like essays or letter writing, provide a full, detailed model answer or key points to look for.
 
-  The 'englishContent' and 'kannadaContent' fields can contain a brief introduction or summary for the lesson.
+  The 'englishContent', 'kannadaContent', and 'urduContent' fields can contain a brief introduction or summary for the lesson.
   {{else}}
   Generate the lesson content based on the provided teaching methods.
   {{/if}}`,

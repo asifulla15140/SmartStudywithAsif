@@ -23,10 +23,13 @@ interface LessonPreviewProps {
 export function LessonPreview({ lessonContent, isLoading, error }: LessonPreviewProps) {
   const [english, setEnglish] = useState('');
   const [kannada, setKannada] = useState('');
+  const [urdu, setUrdu] = useState('');
   const [questionPaperEnglish, setQuestionPaperEnglish] = useState('');
   const [answerKeyEnglish, setAnswerKeyEnglish] = useState('');
   const [questionPaperKannada, setQuestionPaperKannada] = useState('');
   const [answerKeyKannada, setAnswerKeyKannada] = useState('');
+  const [questionPaperUrdu, setQuestionPaperUrdu] = useState('');
+  const [answerKeyUrdu, setAnswerKeyUrdu] = useState('');
   const [accordionValues, setAccordionValues] = useState<string[]>([]);
   const pdfRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -35,10 +38,13 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
   useEffect(() => {
     setEnglish(lessonContent?.englishContent || '');
     setKannada(lessonContent?.kannadaContent || '');
+    setUrdu(lessonContent?.urduContent || '');
     setQuestionPaperEnglish(lessonContent?.questionPaperEnglish || '');
     setAnswerKeyEnglish(lessonContent?.answerKeyEnglish || '');
     setQuestionPaperKannada(lessonContent?.questionPaperKannada || '');
     setAnswerKeyKannada(lessonContent?.answerKeyKannada || '');
+    setQuestionPaperUrdu(lessonContent?.questionPaperUrdu || '');
+    setAnswerKeyUrdu(lessonContent?.answerKeyUrdu || '');
   }, [lessonContent]);
 
   const handleExportPdf = async () => {
@@ -48,12 +54,14 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
     setIsExporting(true);
 
     // Open all accordions
-    const allAccordionValues = ['qp-en', 'ak-en', 'qp-kn', 'ak-kn'].filter(val => {
+    const allAccordionValues = ['qp-en', 'ak-en', 'qp-kn', 'ak-kn', 'qp-ur', 'ak-ur'].filter(val => {
       switch (val) {
         case 'qp-en': return !!lessonContent.questionPaperEnglish;
         case 'ak-en': return !!lessonContent.answerKeyEnglish;
         case 'qp-kn': return !!lessonContent.questionPaperKannada;
         case 'ak-kn': return !!lessonContent.answerKeyKannada;
+        case 'qp-ur': return !!lessonContent.questionPaperUrdu;
+        case 'ak-ur': return !!lessonContent.answerKeyUrdu;
         default: return false;
       }
     });
@@ -192,7 +200,7 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
     );
   }
 
-  const hasQuestionPaper = lessonContent.questionPaperEnglish || lessonContent.questionPaperKannada;
+  const hasQuestionPaper = lessonContent.questionPaperEnglish || lessonContent.questionPaperKannada || lessonContent.questionPaperUrdu;
 
   return (
     <Card className="sticky top-6">
@@ -219,6 +227,16 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
               onChange={(e) => setKannada(e.target.value)}
               className="h-48 bg-white"
               aria-label="Kannada lesson content"
+            />
+          </div>
+          <Separator className="my-4" />
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold font-headline">اردو مواد</h3>
+            <Textarea 
+              value={urdu}
+              onChange={(e) => setUrdu(e.target.value)}
+              className="h-48 bg-white"
+              aria-label="Urdu lesson content"
             />
           </div>
            {hasQuestionPaper && (
@@ -271,6 +289,32 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
                       onChange={(e) => setAnswerKeyKannada(e.target.value)}
                       className="h-48 bg-white"
                       aria-label="Kannada answer key"
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+              {lessonContent.questionPaperUrdu && (
+                <AccordionItem value="qp-ur">
+                  <AccordionTrigger className="text-lg font-semibold font-headline">اردو سوالیہ پرچہ</AccordionTrigger>
+                  <AccordionContent>
+                    <Textarea
+                      value={questionPaperUrdu}
+                      onChange={(e) => setQuestionPaperUrdu(e.target.value)}
+                      className="h-48 bg-white"
+                      aria-label="Urdu question paper"
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+              {lessonContent.answerKeyUrdu && (
+                 <AccordionItem value="ak-ur">
+                  <AccordionTrigger className="text-lg font-semibold font-headline">اردو جواب کلید</AccordionTrigger>
+                  <AccordionContent>
+                    <Textarea
+                      value={answerKeyUrdu}
+                      onChange={(e) => setAnswerKeyUrdu(e.target.value)}
+                      className="h-48 bg-white"
+                      aria-label="Urdu answer key"
                     />
                   </AccordionContent>
                 </AccordionItem>
