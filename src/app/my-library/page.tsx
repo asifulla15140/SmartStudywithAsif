@@ -57,7 +57,9 @@ export default function MyLibraryPage() {
                    <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                       <CardTitle className="font-headline text-xl">{lesson.topic}</CardTitle>
-                      <CardDescription>Saved on: {new Date(lesson.savedAt).toLocaleDateString()}</CardDescription>
+                      <CardDescription>
+                        Saved on: {new Date(lesson.savedAt).toLocaleDateString()}
+                      </CardDescription>
                     </div>
                      <AlertDialog>
                       <AlertDialogTrigger asChild>
