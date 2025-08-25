@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -24,9 +25,14 @@ export default function MyLibraryPage() {
 
   useEffect(() => {
     setIsClient(true);
-    const lessonsFromStorage = localStorage.getItem('savedLessons');
-    if (lessonsFromStorage) {
-      setSavedLessons(JSON.parse(lessonsFromStorage));
+    try {
+      const lessonsFromStorage = localStorage.getItem('savedLessons');
+      if (lessonsFromStorage) {
+        setSavedLessons(JSON.parse(lessonsFromStorage));
+      }
+    } catch (error) {
+      console.error("Failed to parse lessons from localStorage", error);
+      setSavedLessons([]);
     }
   }, []);
 
@@ -37,7 +43,7 @@ export default function MyLibraryPage() {
   };
 
   if (!isClient) {
-    return null; 
+    return null;
   }
 
   return (
@@ -55,7 +61,7 @@ export default function MyLibraryPage() {
               {savedLessons.map((lesson) => (
                 <Card key={lesson.id} className="overflow-hidden">
                    <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
+                    <div className="grid gap-1">
                       <CardTitle className="font-headline text-xl">{lesson.topic}</CardTitle>
                       <CardDescription>
                         Saved on: {new Date(lesson.savedAt).toLocaleDateString()}
