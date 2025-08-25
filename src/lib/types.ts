@@ -10,4 +10,12 @@ export interface LessonContent {
   answerKeyUrdu?: string;
 }
 
+export interface SavedLesson {
+  id: string;
+  topic: string;
+  savedAt: string;
+  lessonContent: LessonContent;
+}
+
+
 export type TeachingMethod = 'Analogy' | 'Story' | 'Mnemonic' | 'Worksheet' | 'Quiz' | 'Question Paper' | 'AI Summary';

@@ -1,18 +1,21 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Download, Save, File, Presentation, AlertCircle } from 'lucide-react';
+import { Download, Save, File, Presentation, AlertCircle, Check, Sparkles } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { nanoid } from 'nanoid';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
-import type { LessonContent } from '@/lib/types';
+import type { LessonContent, SavedLesson } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useToast } from "@/hooks/use-toast"
+import { generateSlides, type GenerateSlidesOutput } from '@/ai/flows/generate-slides';
 
 interface LessonPreviewProps {
   lessonContent: LessonContent | null;
@@ -33,6 +36,9 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
   const [accordionValues, setAccordionValues] = useState<string[]>([]);
   const pdfRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingSlides, setIsGeneratingSlides] = useState(false);
+  const { toast } = useToast();
 
 
   useEffect(() => {
@@ -53,7 +59,6 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
 
     setIsExporting(true);
 
-    // Open all accordions
     const allAccordionValues = ['qp-en', 'ak-en', 'qp-kn', 'ak-kn', 'qp-ur', 'ak-ur'].filter(val => {
       switch (val) {
         case 'qp-en': return !!lessonContent.questionPaperEnglish;
@@ -67,7 +72,6 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
     });
     setAccordionValues(allAccordionValues);
 
-    // Wait for accordions to render open
     await new Promise(resolve => setTimeout(resolve, 500));
 
     try {
@@ -75,16 +79,13 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
             scale: 2,
             useCORS: true,
             logging: false,
-            // Allow tainting to handle potential cross-origin images, if any.
             allowTaint: true, 
             onclone: (document) => {
-              // On clone, find all textareas and replace them with divs
-              // This is because html2canvas has trouble with textarea content.
               Array.from(document.querySelectorAll('textarea')).forEach(textArea => {
                   const div = document.createElement('div');
                   div.style.width = `${textArea.offsetWidth}px`;
-                  div.style.height = `${textArea.offsetHeight}px`;
-                  div.style.border = '1px solid #ccc';
+                  div.style.height = `auto`;
+                  div.style.border = '1px solid #e2e8f0';
                   div.style.borderRadius = '0.375rem';
                   div.style.padding = '0.5rem';
                   div.style.whiteSpace = 'pre-wrap';
@@ -99,7 +100,7 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
         });
 
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'pt', 'a4');
+        const pdf = new jsPDF('p', 'pt', 'a4', true);
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
 
@@ -113,26 +114,114 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
         let heightLeft = heightInPdf;
         let position = 0;
 
-        pdf.addImage(imgData, 'PNG', 0, position, widthInPdf, heightInPdf);
+        pdf.addImage(imgData, 'PNG', 0, position, widthInPdf, heightInPdf, undefined, 'FAST');
         heightLeft -= pdfHeight;
 
         while (heightLeft > 0) {
             position = position - pdfHeight;
             pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 0, position, widthInPdf, heightInPdf);
+            pdf.addImage(imgData, 'PNG', 0, position, widthInPdf, heightInPdf, undefined, 'FAST');
             heightLeft -= pdfHeight;
         }
 
         pdf.save('lesson-plan.pdf');
     } catch (e) {
         console.error("Error exporting PDF:", e);
-        // You might want to show a toast or an alert to the user here
+        toast({
+          variant: "destructive",
+          title: "Export Failed",
+          description: "There was a problem exporting the PDF.",
+        });
     } finally {
-        // Close accordions back
         setAccordionValues([]);
         setIsExporting(false);
     }
-};
+  };
+
+  const handleSaveToLibrary = () => {
+    if (!lessonContent) return;
+    setIsSaving(true);
+    try {
+      const savedLessons: SavedLesson[] = JSON.parse(localStorage.getItem('savedLessons') || '[]');
+      const newLesson: SavedLesson = {
+        id: nanoid(),
+        topic: "Lesson Plan", // Placeholder topic
+        savedAt: new Date().toISOString(),
+        lessonContent: {
+          englishContent: english,
+          kannadaContent: kannada,
+          urduContent: urdu,
+          questionPaperEnglish: questionPaperEnglish,
+          answerKeyEnglish: answerKeyEnglish,
+          questionPaperKannada: questionPaperKannada,
+          answerKeyKannada: answerKeyKannada,
+          questionPaperUrdu: questionPaperUrdu,
+          answerKeyUrdu: answerKeyUrdu,
+        },
+      };
+      savedLessons.unshift(newLesson);
+      localStorage.setItem('savedLessons', JSON.stringify(savedLessons));
+      toast({
+        title: "Lesson Saved!",
+        description: "Your lesson has been saved to your library.",
+        action: <Check className="h-5 w-5 text-green-500" />,
+      });
+    } catch (e) {
+      console.error("Failed to save to library:", e);
+      toast({
+        variant: "destructive",
+        title: "Save Failed",
+        description: "Could not save the lesson to your library.",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleExportSlides = async () => {
+    if (!lessonContent) return;
+    setIsGeneratingSlides(true);
+    try {
+      const fullContent = [
+        `English: ${english}`,
+        `Kannada: ${kannada}`,
+        `Urdu: ${urdu}`,
+        `English QP: ${questionPaperEnglish}`,
+        `English Key: ${answerKeyEnglish}`,
+        `Kannada QP: ${questionPaperKannada}`,
+        `Kannada Key: ${answerKeyKannada}`,
+        `Urdu QP: ${questionPaperUrdu}`,
+        `Urdu Key: ${answerKeyUrdu}`,
+      ].join('\n\n---\n\n');
+
+      const result = await generateSlides({
+        lessonContent: fullContent,
+        topic: 'Generated Lesson',
+        gradeLevel: 'Any',
+      });
+      
+      if (result.slides) {
+        // For now, we will log the slides to the console.
+        // A proper slide export (e.g., to PPTX) would require a library like pptxgenjs.
+        console.log(result.slides);
+        toast({
+          title: "Slides Generated",
+          description: "Slide data has been logged to the browser console.",
+          action: <Sparkles className="h-5 w-5 text-blue-500" />,
+        });
+      }
+
+    } catch(e) {
+       console.error("Failed to generate slides:", e);
+        toast({
+          variant: "destructive",
+          title: "Slide Generation Failed",
+          description: "There was a problem creating the presentation.",
+        });
+    } finally {
+      setIsGeneratingSlides(false);
+    }
+  }
 
 
   if (isLoading) {
@@ -209,46 +298,47 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
         <CardDescription>Review and edit the content below. You can save or export it.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div ref={pdfRef} className="printable-area p-4 bg-white text-black">
+        <div ref={pdfRef} className="printable-area p-4 bg-white text-black rounded-md">
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold font-headline">English Content</h3>
+            <h3 className="text-lg font-semibold font-headline text-slate-800">English Content</h3>
             <Textarea 
               value={english} 
               onChange={(e) => setEnglish(e.target.value)}
-              className="h-48 bg-white"
+              className="h-48 bg-slate-50 text-slate-900"
               aria-label="English lesson content"
             />
           </div>
           <Separator className="my-4" />
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold font-headline">ಕನ್ನಡ ವಿಷಯ</h3>
+            <h3 className="text-lg font-semibold font-headline text-slate-800">ಕನ್ನಡ ವಿಷಯ</h3>
             <Textarea 
               value={kannada}
               onChange={(e) => setKannada(e.target.value)}
-              className="h-48 bg-white"
+              className="h-48 bg-slate-50 text-slate-900"
               aria-label="Kannada lesson content"
             />
           </div>
           <Separator className="my-4" />
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold font-headline">اردو مواد</h3>
+            <h3 className="text-lg font-semibold font-headline text-slate-800">اردو مواد</h3>
             <Textarea 
               value={urdu}
               onChange={(e) => setUrdu(e.target.value)}
-              className="h-48 bg-white"
+              className="h-48 bg-slate-50 text-slate-900 rtl"
               aria-label="Urdu lesson content"
+              dir="rtl"
             />
           </div>
            {hasQuestionPaper && (
             <Accordion type="multiple" className="w-full mt-4" value={accordionValues} onValueChange={setAccordionValues}>
               {lessonContent.questionPaperEnglish && (
                 <AccordionItem value="qp-en">
-                  <AccordionTrigger className="text-lg font-semibold font-headline">English Question Paper</AccordionTrigger>
+                  <AccordionTrigger className="text-lg font-semibold font-headline text-slate-800">English Question Paper</AccordionTrigger>
                   <AccordionContent>
                     <Textarea
                       value={questionPaperEnglish}
                       onChange={(e) => setQuestionPaperEnglish(e.target.value)}
-                      className="h-48 bg-white"
+                      className="h-48 bg-slate-50 text-slate-900"
                       aria-label="English question paper"
                     />
                   </AccordionContent>
@@ -256,12 +346,12 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
               )}
               {lessonContent.answerKeyEnglish && (
                 <AccordionItem value="ak-en">
-                  <AccordionTrigger className="text-lg font-semibold font-headline">English Answer Key</AccordionTrigger>
+                  <AccordionTrigger className="text-lg font-semibold font-headline text-slate-800">English Answer Key</AccordionTrigger>
                   <AccordionContent>
                     <Textarea
                       value={answerKeyEnglish}
                       onChange={(e) => setAnswerKeyEnglish(e.target.value)}
-                      className="h-48 bg-white"
+                      className="h-48 bg-slate-50 text-slate-900"
                       aria-label="English answer key"
                     />
                   </AccordionContent>
@@ -269,12 +359,12 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
               )}
               {lessonContent.questionPaperKannada && (
                 <AccordionItem value="qp-kn">
-                  <AccordionTrigger className="text-lg font-semibold font-headline">ಕನ್ನಡ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆ</AccordionTrigger>
+                  <AccordionTrigger className="text-lg font-semibold font-headline text-slate-800">ಕನ್ನಡ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆ</AccordionTrigger>
                   <AccordionContent>
                     <Textarea
                       value={questionPaperKannada}
                       onChange={(e) => setQuestionPaperKannada(e.target.value)}
-                      className="h-48 bg-white"
+                      className="h-48 bg-slate-50 text-slate-900"
                       aria-label="Kannada question paper"
                     />
                   </AccordionContent>
@@ -282,12 +372,12 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
               )}
               {lessonContent.answerKeyKannada && (
                  <AccordionItem value="ak-kn">
-                  <AccordionTrigger className="text-lg font-semibold font-headline">ಕನ್ನಡ ಉತ್ತರ ಸೂಚಿ</AccordionTrigger>
+                  <AccordionTrigger className="text-lg font-semibold font-headline text-slate-800">ಕನ್ನಡ ಉತ್ತರ ಸೂಚಿ</AccordionTrigger>
                   <AccordionContent>
                     <Textarea
                       value={answerKeyKannada}
                       onChange={(e) => setAnswerKeyKannada(e.target.value)}
-                      className="h-48 bg-white"
+                      className="h-48 bg-slate-50 text-slate-900"
                       aria-label="Kannada answer key"
                     />
                   </AccordionContent>
@@ -295,26 +385,28 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
               )}
               {lessonContent.questionPaperUrdu && (
                 <AccordionItem value="qp-ur">
-                  <AccordionTrigger className="text-lg font-semibold font-headline">اردو سوالیہ پرچہ</AccordionTrigger>
+                  <AccordionTrigger className="text-lg font-semibold font-headline text-slate-800">اردو سوالیہ پرچہ</AccordionTrigger>
                   <AccordionContent>
                     <Textarea
                       value={questionPaperUrdu}
                       onChange={(e) => setQuestionPaperUrdu(e.target.value)}
-                      className="h-48 bg-white"
+                      className="h-48 bg-slate-50 text-slate-900 rtl"
                       aria-label="Urdu question paper"
+                       dir="rtl"
                     />
                   </AccordionContent>
                 </AccordionItem>
               )}
               {lessonContent.answerKeyUrdu && (
                  <AccordionItem value="ak-ur">
-                  <AccordionTrigger className="text-lg font-semibold font-headline">اردو جواب کلید</AccordionTrigger>
+                  <AccordionTrigger className="text-lg font-semibold font-headline text-slate-800">اردو جواب کلید</AccordionTrigger>
                   <AccordionContent>
                     <Textarea
                       value={answerKeyUrdu}
                       onChange={(e) => setAnswerKeyUrdu(e.target.value)}
-                      className="h-48 bg-white"
+                      className="h-48 bg-slate-50 text-slate-900 rtl"
                       aria-label="Urdu answer key"
+                       dir="rtl"
                     />
                   </AccordionContent>
                 </AccordionItem>
@@ -324,11 +416,15 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
         </div>
         <Separator />
         <div className="flex flex-wrap gap-2">
-          <Button disabled={isExporting}><Save /> Save to Library</Button>
+          <Button onClick={handleSaveToLibrary} disabled={isSaving}>
+            {isSaving ? 'Saving...' : <><Save /> Save to Library</>}
+          </Button>
           <Button variant="outline" onClick={handleExportPdf} disabled={isExporting}>
             {isExporting ? 'Exporting...' : <><Download /> Export PDF</>}
-            </Button>
-          <Button variant="outline" disabled={isExporting}><Presentation /> Export Slides</Button>
+          </Button>
+          <Button variant="outline" onClick={handleExportSlides} disabled={isGeneratingSlides}>
+            {isGeneratingSlides ? 'Generating...' : <><Presentation /> Export Slides</>}
+          </Button>
         </div>
       </CardContent>
     </Card>
