@@ -24,12 +24,20 @@ export type GenerateBilingualLessonContentInput = z.infer<
 >;
 
 const GenerateBilingualLessonContentOutputSchema = z.object({
-  englishContent: z.string().describe('The lesson content in English.'),
-  kannadaContent: z.string().describe('The lesson content in Kannada.'),
+  englishContent: z.string().describe('The lesson content in English. If "Question Paper" is not a teaching method, this will be the primary content. If it is, this can be a summary or introduction.'),
+  kannadaContent: z.string().describe('The lesson content in Kannada. If "Question Paper" is not a teaching method, this will be the primary content. If it is, this can be a summary or introduction.'),
+  questionPaperEnglish: z.string().optional().describe('The generated question paper in English. Only generated if "Question Paper" is a teaching method.'),
+  answerKeyEnglish: z.string().optional().describe('The answer key for the English question paper. Only generated if "Question Paper" is a teaching method.'),
+  questionPaperKannada: z.string().optional().describe('The generated question paper in Kannada. Only generated if "Question Paper" is a teaching method.'),
+  answerKeyKannada: z.string().optional().describe('The answer key for the Kannada question paper. Only generated if "Question Paper" is a teaching method.'),
 });
 export type GenerateBilingualLessonContentOutput = z.infer<
   typeof GenerateBilingualLessonContentOutputSchema
 >;
+
+// Helper function to check if an array includes a specific string.
+// Handlebars doesn't have complex logic, so we pass this in.
+const includes = (arr: string[], str: string) => arr.includes(str);
 
 export async function generateBilingualLessonContent(
   input: GenerateBilingualLessonContentInput
@@ -49,11 +57,13 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
 
   Create lesson content in English and Kannada, tailored to the specified grade level and teaching methods.
 
-  English Content:
-  {{englishContent}}
-
-  Kannada Content:
-  {{kannadaContent}}`,
+  {{#if (includes teachingMethods "Question Paper")}}
+  Generate a question paper for the given topic and grade level in both English and Kannada.
+  Also, provide a separate answer key for each question paper.
+  The 'englishContent' and 'kannadaContent' fields can contain a brief introduction or summary for the lesson.
+  {{else}}
+  Generate the lesson content based on the provided teaching methods.
+  {{/if}}`,
 });
 
 const generateBilingualLessonContentFlow = ai.defineFlow(
@@ -62,8 +72,14 @@ const generateBilingualLessonContentFlow = ai.defineFlow(
     inputSchema: GenerateBilingualLessonContentInputSchema,
     outputSchema: GenerateBilingualLessonContentOutputSchema,
   },
-  async input => {
-    const {output} = await generateBilingualLessonContentPrompt(input);
+  async (input) => {
+    // We need to augment the input with the result of the `includes` helper
+    // so the Handlebars template can use it.
+    const augmentedInput = {
+      ...input,
+      includes,
+    };
+    const {output} = await generateBilingualLessonContentPrompt(augmentedInput);
     return output!;
   }
 );

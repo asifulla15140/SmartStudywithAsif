@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import type { LessonContent } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 interface LessonPreviewProps {
   lessonContent: LessonContent | null;
@@ -22,42 +23,61 @@ interface LessonPreviewProps {
 export function LessonPreview({ lessonContent, isLoading, error }: LessonPreviewProps) {
   const [english, setEnglish] = useState('');
   const [kannada, setKannada] = useState('');
+  const [questionPaperEnglish, setQuestionPaperEnglish] = useState('');
+  const [answerKeyEnglish, setAnswerKeyEnglish] = useState('');
+  const [questionPaperKannada, setQuestionPaperKannada] = useState('');
+  const [answerKeyKannada, setAnswerKeyKannada] = useState('');
   const pdfRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setEnglish(lessonContent?.englishContent || '');
     setKannada(lessonContent?.kannadaContent || '');
+    setQuestionPaperEnglish(lessonContent?.questionPaperEnglish || '');
+    setAnswerKeyEnglish(lessonContent?.answerKeyEnglish || '');
+    setQuestionPaperKannada(lessonContent?.questionPaperKannada || '');
+    setAnswerKeyKannada(lessonContent?.answerKeyKannada || '');
   }, [lessonContent]);
 
   const handleExportPdf = () => {
     const input = pdfRef.current;
     if (input) {
-      html2canvas(input, { scale: 2 }).then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'px', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const canvasWidth = canvas.width;
-        const canvasHeight = canvas.height;
-        const ratio = canvasWidth / canvasHeight;
-        const width = pdfWidth;
-        const height = width / ratio;
+      // Temporarily open all accordions for PDF export
+      const accordions = input.querySelectorAll<HTMLButtonElement>('[data-state="closed"]');
+      accordions.forEach(acc => acc.click());
 
-        let position = 0;
-        let heightLeft = height;
+      setTimeout(() => {
+        html2canvas(input, { scale: 2 }).then((canvas) => {
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF('p', 'px', 'a4');
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = pdf.internal.pageSize.getHeight();
+          const canvasWidth = canvas.width;
+          const canvasHeight = canvas.height;
+          const ratio = canvasWidth / canvasHeight;
+          const width = pdfWidth;
+          const height = width / ratio;
 
-        pdf.addImage(imgData, 'PNG', 0, position, width, height);
-        heightLeft -= pdfHeight;
+          let position = 0;
+          let heightLeft = height;
 
-        while (heightLeft > 0) {
-          position = heightLeft - height;
-          pdf.addPage();
           pdf.addImage(imgData, 'PNG', 0, position, width, height);
           heightLeft -= pdfHeight;
-        }
-        
-        pdf.save('lesson-plan.pdf');
-      });
+
+          while (heightLeft > 0) {
+            position = heightLeft - height;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, width, height);
+            heightLeft -= pdfHeight;
+          }
+          
+          pdf.save('lesson-plan.pdf');
+
+          // Close accordions back
+          const openAccordions = input.querySelectorAll<HTMLButtonElement>('[data-state="open"]');
+          openAccordions.forEach(acc => acc.click());
+        });
+      }, 200)
+
     }
   };
 
@@ -125,6 +145,8 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
     );
   }
 
+  const hasQuestionPaper = lessonContent.questionPaperEnglish || lessonContent.questionPaperKannada;
+
   return (
     <Card className="sticky top-6">
       <CardHeader>
@@ -152,6 +174,62 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
               aria-label="Kannada lesson content"
             />
           </div>
+           {hasQuestionPaper && (
+            <Accordion type="multiple" className="w-full mt-4">
+              {lessonContent.questionPaperEnglish && (
+                <AccordionItem value="qp-en">
+                  <AccordionTrigger className="text-lg font-semibold font-headline">English Question Paper</AccordionTrigger>
+                  <AccordionContent>
+                    <Textarea
+                      value={questionPaperEnglish}
+                      onChange={(e) => setQuestionPaperEnglish(e.target.value)}
+                      className="h-48 bg-white"
+                      aria-label="English question paper"
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+              {lessonContent.answerKeyEnglish && (
+                <AccordionItem value="ak-en">
+                  <AccordionTrigger className="text-lg font-semibold font-headline">English Answer Key</AccordionTrigger>
+                  <AccordionContent>
+                    <Textarea
+                      value={answerKeyEnglish}
+                      onChange={(e) => setAnswerKeyEnglish(e.target.value)}
+                      className="h-48 bg-white"
+                      aria-label="English answer key"
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+              {lessonContent.questionPaperKannada && (
+                <AccordionItem value="qp-kn">
+                  <AccordionTrigger className="text-lg font-semibold font-headline">ಕನ್ನಡ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆ</AccordionTrigger>
+                  <AccordionContent>
+                    <Textarea
+                      value={questionPaperKannada}
+                      onChange={(e) => setQuestionPaperKannada(e.target.value)}
+                      className="h-48 bg-white"
+                      aria-label="Kannada question paper"
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+              {lessonContent.answerKeyKannada && (
+                 <AccordionItem value="ak-kn">
+                  <AccordionTrigger className="text-lg font-semibold font-headline">ಕನ್ನಡ ಉತ್ತರ ಸೂಚಿ</AccordionTrigger>
+                  <AccordionContent>
+                    <Textarea
+                      value={answerKeyKannada}
+                      onChange={(e) => setAnswerKeyKannada(e.target.value)}
+                      className="h-48 bg-white"
+                      aria-label="Kannada answer key"
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+            </Accordion>
+          )}
         </div>
         <Separator />
         <div className="flex flex-wrap gap-2">
