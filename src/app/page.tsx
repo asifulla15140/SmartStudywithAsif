@@ -39,7 +39,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex-1 items-start p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid lg:grid-cols-5">
+    <div className="flex-1 items-start p-4 sm:p-6 md:gap-8 lg:grid lg:grid-cols-5">
       <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-3">
         <LessonCreatorForm onGenerate={handleGenerateLesson} isLoading={isLoading} />
       </div>
