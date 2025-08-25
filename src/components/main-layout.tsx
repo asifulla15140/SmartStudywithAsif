@@ -35,7 +35,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const pageTitle = [...navItems, ...bottomNavItems].find(item => item.href === pathname)?.label || 'Create Lesson'
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen w-full bg-muted/40">
         <Sidebar>
           <div className="flex h-full flex-col">

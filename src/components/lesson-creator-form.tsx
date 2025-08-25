@@ -7,6 +7,8 @@ import {
   CircleHelp,
   BookOpenText,
   Lightbulb,
+  FileText,
+  Bot,
   type LucideIcon,
 } from 'lucide-react';
 import { useForm, Controller } from 'react-hook-form';
@@ -47,6 +49,8 @@ const teachingMethods: { name: string; icon: LucideIcon; description: string }[]
   { name: 'Mnemonic', icon: BrainCircuit, description: 'Create a memory aid' },
   { name: 'Worksheet', icon: ClipboardList, description: 'Design practice activities' },
   { name: 'Quiz', icon: CircleHelp, description: 'Generate review questions' },
+  { name: 'Question Paper', icon: FileText, description: 'Create an exam paper' },
+  { name: 'AI Summary', icon: Bot, description: 'Summarize with AI' },
 ];
 
 export function LessonCreatorForm({ onGenerate, isLoading }: LessonCreatorFormProps) {

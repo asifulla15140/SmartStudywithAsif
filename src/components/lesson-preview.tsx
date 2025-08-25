@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Download, Save, File, Presentation } from 'lucide-react';
+import { Download, Save, File, Presentation, AlertCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,6 +34,10 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
           <Skeleton className="h-4 w-1/2" />
         </CardHeader>
         <CardContent className="space-y-6">
+          <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-12">
+            <p className="font-semibold mb-2">Still loading...</p>
+            <Skeleton className="h-4 w-3/4" />
+          </div>
           <div className="space-y-2">
             <Skeleton className="h-6 w-1/4" />
             <Skeleton className="h-32 w-full" />
@@ -51,7 +55,7 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
     );
   }
 
-  if (error && !lessonContent) {
+  if (error) {
     return (
        <Card className="sticky top-6">
         <CardHeader>
@@ -60,8 +64,9 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
         </CardHeader>
         <CardContent>
           <Alert variant="destructive">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Generation Failed</AlertTitle>
+            <AlertDescription>There was an error showing the lesson. Failed to fetch.</AlertDescription>
           </Alert>
         </CardContent>
       </Card>
