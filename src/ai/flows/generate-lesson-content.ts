@@ -60,6 +60,8 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
 
   Use the searchWeb tool to find accurate and up-to-date information on the topic.
 
+  If the topic is about an author, you MUST include the author's name and a detailed biography in the lesson content for all three languages (English, Kannada, and Urdu).
+
   MANDATORY INSTRUCTION: You MUST generate content in English, Kannada, and Urdu. All English content must go into the 'englishContent', 'questionPaperEnglish', and 'answerKeyEnglish' fields. All Kannada content must be an accurate translation and must go into the 'kannadaContent', 'questionPaperKannada', and 'answerKeyKannada' fields. All Urdu content must be an accurate translation and must go into the 'urduContent', 'questionPaperUrdu', and 'answerKeyUrdu' fields. DO NOT mix languages within a field. English fields should only contain English. Kannada fields should only contain Kannada. Urdu fields should only contain Urdu. This is a strict requirement.
 
   Create lesson content tailored to the specified grade level and teaching methods.
