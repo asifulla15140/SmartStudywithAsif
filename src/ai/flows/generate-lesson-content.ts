@@ -71,7 +71,7 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
   The question paper should be well-structured and suitable for printing. Use a variety of question types (e.g., multiple choice, fill-in-the-blanks, short answer, long answer, essay writing, letter writing, and grammar exercises).
   Use a clear and organized formatting structure with Roman numerals (I, II, III) for sections, numbers (1, 2, 3) for questions, and letters (a, b, c) for sub-questions or options.
   
-  Also, provide a separate, detailed answer key for each question paper. The answer key's format must correspond exactly to the question paper's format for easy reference. For subjective questions like essays or letter writing, provide a full, detailed model answer or key points to look for.
+  Also, provide a separate, detailed answer key for each question paper. The answer key's format must correspond exactly to the question paper's format for easy reference. For subjective questions like essays or letter writing, you MUST provide a full, detailed model answer, not just key points. The answers should be comprehensive and provide a complete response to the question.
 
   The 'englishContent', 'kannadaContent', and 'urduContent' fields can contain a brief introduction or summary for the lesson.
   {{else}}
