@@ -24,6 +24,49 @@ interface LessonPreviewProps {
   error: string | null;
 }
 
+function EditableContent({ value, onChange, label, dir }: { value: string; onChange: (value: string) => void; label: string, dir?: "rtl" | "ltr" }) {
+    const [isEditing, setIsEditing] = useState(false);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        if (isEditing && textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    }, [isEditing, value]);
+
+
+    if (isEditing) {
+        return (
+            <Textarea
+                ref={textareaRef}
+                value={value}
+                onChange={(e) => {
+                    onChange(e.target.value)
+                    const textarea = e.target;
+                    textarea.style.height = 'auto';
+                    textarea.style.height = `${textarea.scrollHeight}px`;
+                }}
+                onBlur={() => setIsEditing(false)}
+                className="w-full bg-slate-50 text-slate-900 text-sm p-3 rounded-md border border-ring"
+                aria-label={label}
+                autoFocus
+                dir={dir}
+            />
+        );
+    }
+
+    return (
+        <div
+            onClick={() => setIsEditing(true)}
+            className="w-full min-h-[120px] bg-slate-50 text-slate-900 text-sm p-3 rounded-md whitespace-pre-wrap border border-input cursor-text"
+            dir={dir}
+        >
+            {value}
+        </div>
+    );
+}
+
 export function LessonPreview({ lessonContent, topic, isLoading, error }: LessonPreviewProps) {
   const [english, setEnglish] = useState('');
   const [kannada, setKannada] = useState('');
@@ -99,23 +142,6 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
             useCORS: true,
             logging: false,
             allowTaint: true, 
-            onclone: (document) => {
-              Array.from(document.querySelectorAll('textarea')).forEach(textArea => {
-                  const div = document.createElement('div');
-                  div.style.width = `${textArea.offsetWidth}px`;
-                  div.style.height = `auto`;
-                  div.style.border = '1px solid #e2e8f0';
-                  div.style.borderRadius = '0.375rem';
-                  div.style.padding = '0.5rem';
-                  div.style.whiteSpace = 'pre-wrap';
-                  div.style.wordWrap = 'break-word';
-                  div.style.fontSize = '14px';
-                  div.style.fontFamily = 'sans-serif';
-                  div.style.color = 'black';
-                  div.innerText = textArea.value;
-                  textArea.parentNode?.replaceChild(div, textArea);
-              });
-            }
         });
 
         const imgData = canvas.toDataURL('image/png');
@@ -328,33 +354,17 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
         <div ref={pdfRef} className="printable-area p-4 bg-white text-black rounded-md">
           <div className="space-y-2">
             <h3 className="text-lg font-semibold font-headline text-slate-800">English Content</h3>
-            <Textarea 
-              value={english} 
-              onChange={(e) => setEnglish(e.target.value)}
-              className="h-48 bg-slate-50 text-slate-900"
-              aria-label="English lesson content"
-            />
+            <EditableContent value={english} onChange={setEnglish} label="English lesson content" />
           </div>
           <Separator className="my-4" />
           <div className="space-y-2">
             <h3 className="text-lg font-semibold font-headline text-slate-800">ಕನ್ನಡ ವಿಷಯ</h3>
-            <Textarea 
-              value={kannada}
-              onChange={(e) => setKannada(e.target.value)}
-              className="h-48 bg-slate-50 text-slate-900"
-              aria-label="Kannada lesson content"
-            />
+            <EditableContent value={kannada} onChange={setKannada} label="Kannada lesson content" />
           </div>
           <Separator className="my-4" />
           <div className="space-y-2">
             <h3 className="text-lg font-semibold font-headline text-slate-800">اردو مواد</h3>
-            <Textarea 
-              value={urdu}
-              onChange={(e) => setUrdu(e.target.value)}
-              className="h-48 bg-slate-50 text-slate-900 rtl"
-              aria-label="Urdu lesson content"
-              dir="rtl"
-            />
+            <EditableContent value={urdu} onChange={setUrdu} label="Urdu lesson content" dir="rtl" />
           </div>
            {hasQuestionPaper && (
             <Accordion type="multiple" className="w-full mt-4" value={accordionValues} onValueChange={setAccordionValues}>
@@ -362,12 +372,7 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
                 <AccordionItem value="qp-en">
                   <AccordionTrigger className="text-lg font-semibold font-headline text-slate-800">English Question Paper</AccordionTrigger>
                   <AccordionContent>
-                    <Textarea
-                      value={questionPaperEnglish}
-                      onChange={(e) => setQuestionPaperEnglish(e.target.value)}
-                      className="h-48 bg-slate-50 text-slate-900"
-                      aria-label="English question paper"
-                    />
+                     <EditableContent value={questionPaperEnglish} onChange={setQuestionPaperEnglish} label="English question paper" />
                   </AccordionContent>
                 </AccordionItem>
               )}
@@ -375,12 +380,7 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
                 <AccordionItem value="ak-en">
                   <AccordionTrigger className="text-lg font-semibold font-headline text-slate-800">English Answer Key</AccordionTrigger>
                   <AccordionContent>
-                    <Textarea
-                      value={answerKeyEnglish}
-                      onChange={(e) => setAnswerKeyEnglish(e.target.value)}
-                      className="h-48 bg-slate-50 text-slate-900"
-                      aria-label="English answer key"
-                    />
+                    <EditableContent value={answerKeyEnglish} onChange={setAnswerKeyEnglish} label="English answer key" />
                   </AccordionContent>
                 </AccordionItem>
               )}
@@ -388,12 +388,7 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
                 <AccordionItem value="qp-kn">
                   <AccordionTrigger className="text-lg font-semibold font-headline text-slate-800">ಕನ್ನಡ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆ</AccordionTrigger>
                   <AccordionContent>
-                    <Textarea
-                      value={questionPaperKannada}
-                      onChange={(e) => setQuestionPaperKannada(e.target.value)}
-                      className="h-48 bg-slate-50 text-slate-900"
-                      aria-label="Kannada question paper"
-                    />
+                    <EditableContent value={questionPaperKannada} onChange={setQuestionPaperKannada} label="Kannada question paper" />
                   </AccordionContent>
                 </AccordionItem>
               )}
@@ -401,12 +396,7 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
                  <AccordionItem value="ak-kn">
                   <AccordionTrigger className="text-lg font-semibold font-headline text-slate-800">ಕನ್ನಡ ಉತ್ತರ ಸೂಚಿ</AccordionTrigger>
                   <AccordionContent>
-                    <Textarea
-                      value={answerKeyKannada}
-                      onChange={(e) => setAnswerKeyKannada(e.target.value)}
-                      className="h-48 bg-slate-50 text-slate-900"
-                      aria-label="Kannada answer key"
-                    />
+                    <EditableContent value={answerKeyKannada} onChange={setAnswerKeyKannada} label="Kannada answer key" />
                   </AccordionContent>
                 </AccordionItem>
               )}
@@ -414,13 +404,7 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
                 <AccordionItem value="qp-ur">
                   <AccordionTrigger className="text-lg font-semibold font-headline text-slate-800">اردو سوالیہ پرچہ</AccordionTrigger>
                   <AccordionContent>
-                    <Textarea
-                      value={questionPaperUrdu}
-                      onChange={(e) => setQuestionPaperUrdu(e.target.value)}
-                      className="h-48 bg-slate-50 text-slate-900 rtl"
-                      aria-label="Urdu question paper"
-                       dir="rtl"
-                    />
+                    <EditableContent value={questionPaperUrdu} onChange={setQuestionPaperUrdu} label="Urdu question paper" dir="rtl" />
                   </AccordionContent>
                 </AccordionItem>
               )}
@@ -428,13 +412,7 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
                  <AccordionItem value="ak-ur">
                   <AccordionTrigger className="text-lg font-semibold font-headline text-slate-800">اردو جواب کلید</AccordionTrigger>
                   <AccordionContent>
-                    <Textarea
-                      value={answerKeyUrdu}
-                      onChange={(e) => setAnswerKeyUrdu(e.target.value)}
-                      className="h-48 bg-slate-50 text-slate-900 rtl"
-                      aria-label="Urdu answer key"
-                       dir="rtl"
-                    />
+                    <EditableContent value={answerKeyUrdu} onChange={setAnswerKeyUrdu} label="Urdu answer key" dir="rtl" />
                   </AccordionContent>
                 </AccordionItem>
               )}
@@ -452,12 +430,7 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
                   <AccordionItem value="rq-en">
                     <AccordionTrigger className="text-base font-semibold text-slate-800">Repeated Questions (English)</AccordionTrigger>
                     <AccordionContent>
-                      <Textarea
-                        value={repeatedQuestionsEnglish}
-                        onChange={(e) => setRepeatedQuestionsEnglish(e.target.value)}
-                        className="h-48 bg-slate-50 text-slate-900"
-                        aria-label="Repeated questions in English"
-                      />
+                      <EditableContent value={repeatedQuestionsEnglish} onChange={setRepeatedQuestionsEnglish} label="Repeated questions in English" />
                     </AccordionContent>
                   </AccordionItem>
                 )}
@@ -465,12 +438,7 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
                   <AccordionItem value="ra-en">
                     <AccordionTrigger className="text-base font-semibold text-slate-800">Repeated Answers (English)</AccordionTrigger>
                     <AccordionContent>
-                      <Textarea
-                        value={repeatedAnswersEnglish}
-                        onChange={(e) => setRepeatedAnswersEnglish(e.target.value)}
-                        className="h-48 bg-slate-50 text-slate-900"
-                        aria-label="Repeated answers in English"
-                      />
+                      <EditableContent value={repeatedAnswersEnglish} onChange={setRepeatedAnswersEnglish} label="Repeated answers in English" />
                     </AccordionContent>
                   </AccordionItem>
                 )}
@@ -478,12 +446,7 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
                   <AccordionItem value="rq-kn">
                     <AccordionTrigger className="text-base font-semibold text-slate-800">ಪುನರಾವರ್ತಿತ ಪ್ರಶ್ನೆಗಳು (ಕನ್ನಡ)</AccordionTrigger>
                     <AccordionContent>
-                      <Textarea
-                        value={repeatedQuestionsKannada}
-                        onChange={(e) => setRepeatedQuestionsKannada(e.target.value)}
-                        className="h-48 bg-slate-50 text-slate-900"
-                        aria-label="Repeated questions in Kannada"
-                      />
+                      <EditableContent value={repeatedQuestionsKannada} onChange={setRepeatedQuestionsKannada} label="Repeated questions in Kannada" />
                     </AccordionContent>
                   </AccordionItem>
                 )}
@@ -491,12 +454,7 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
                   <AccordionItem value="ra-kn">
                     <AccordionTrigger className="text-base font-semibold text-slate-800">ಪುನರಾವರ್ತಿತ ಉತ್ತರಗಳು (ಕನ್ನಡ)</AccordionTrigger>
                     <AccordionContent>
-                      <Textarea
-                        value={repeatedAnswersKannada}
-                        onChange={(e) => setRepeatedAnswersKannada(e.target.value)}
-                        className="h-48 bg-slate-50 text-slate-900"
-                        aria-label="Repeated answers in Kannada"
-                      />
+                      <EditableContent value={repeatedAnswersKannada} onChange={setRepeatedAnswersKannada} label="Repeated answers in Kannada" />
                     </AccordionContent>
                   </AccordionItem>
                 )}
@@ -504,13 +462,7 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
                   <AccordionItem value="rq-ur">
                     <AccordionTrigger className="text-base font-semibold text-slate-800">بار بار پوچھے گئے سوالات (اردو)</AccordionTrigger>
                     <AccordionContent>
-                      <Textarea
-                        value={repeatedQuestionsUrdu}
-                        onChange={(e) => setRepeatedQuestionsUrdu(e.target.value)}
-                        className="h-48 bg-slate-50 text-slate-900 rtl"
-                        aria-label="Repeated questions in Urdu"
-                        dir="rtl"
-                      />
+                      <EditableContent value={repeatedQuestionsUrdu} onChange={setRepeatedQuestionsUrdu} label="Repeated questions in Urdu" dir="rtl" />
                     </AccordionContent>
                   </AccordionItem>
                 )}
@@ -518,13 +470,7 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
                   <AccordionItem value="ra-ur">
                     <AccordionTrigger className="text-base font-semibold text-slate-800">بار بار پوچھے گئے جوابات (اردو)</AccordionTrigger>
                     <AccordionContent>
-                      <Textarea
-                        value={repeatedAnswersUrdu}
-                        onChange={(e) => setRepeatedAnswersUrdu(e.target.value)}
-                        className="h-48 bg-slate-50 text-slate-900 rtl"
-                        aria-label="Repeated answers in Urdu"
-                        dir="rtl"
-                      />
+                      <EditableContent value={repeatedAnswersUrdu} onChange={setRepeatedAnswersUrdu} label="Repeated answers in Urdu" dir="rtl" />
                     </AccordionContent>
                   </AccordionItem>
                 )}
@@ -548,3 +494,5 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
     </Card>
   );
 }
+
+    
