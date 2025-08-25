@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Download, Save, File, Presentation, AlertCircle } from 'lucide-react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,11 +22,44 @@ interface LessonPreviewProps {
 export function LessonPreview({ lessonContent, isLoading, error }: LessonPreviewProps) {
   const [english, setEnglish] = useState('');
   const [kannada, setKannada] = useState('');
+  const pdfRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setEnglish(lessonContent?.englishContent || '');
     setKannada(lessonContent?.kannadaContent || '');
   }, [lessonContent]);
+
+  const handleExportPdf = () => {
+    const input = pdfRef.current;
+    if (input) {
+      html2canvas(input, { scale: 2 }).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'px', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const ratio = canvasWidth / canvasHeight;
+        const width = pdfWidth;
+        const height = width / ratio;
+
+        let position = 0;
+        let heightLeft = height;
+
+        pdf.addImage(imgData, 'PNG', 0, position, width, height);
+        heightLeft -= pdfHeight;
+
+        while (heightLeft > 0) {
+          position = heightLeft - height;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, width, height);
+          heightLeft -= pdfHeight;
+        }
+        
+        pdf.save('lesson-plan.pdf');
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -97,29 +132,31 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
         <CardDescription>Review and edit the content below. You can save or export it.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold font-headline">English Content</h3>
-          <Textarea 
-            value={english} 
-            onChange={(e) => setEnglish(e.target.value)}
-            className="h-48 bg-white"
-            aria-label="English lesson content"
-          />
-        </div>
-        <Separator />
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold font-headline">ಕನ್ನಡ ವಿಷಯ</h3>
-          <Textarea 
-            value={kannada}
-            onChange={(e) => setKannada(e.target.value)}
-            className="h-48 bg-white"
-            aria-label="Kannada lesson content"
-          />
+        <div ref={pdfRef} className="printable-area p-4 bg-white text-black">
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold font-headline">English Content</h3>
+            <Textarea 
+              value={english} 
+              onChange={(e) => setEnglish(e.target.value)}
+              className="h-48 bg-white"
+              aria-label="English lesson content"
+            />
+          </div>
+          <Separator className="my-4" />
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold font-headline">ಕನ್ನಡ ವಿಷಯ</h3>
+            <Textarea 
+              value={kannada}
+              onChange={(e) => setKannada(e.target.value)}
+              className="h-48 bg-white"
+              aria-label="Kannada lesson content"
+            />
+          </div>
         </div>
         <Separator />
         <div className="flex flex-wrap gap-2">
           <Button><Save /> Save to Library</Button>
-          <Button variant="outline"><Download /> Export PDF</Button>
+          <Button variant="outline" onClick={handleExportPdf}><Download /> Export PDF</Button>
           <Button variant="outline"><Presentation /> Export Slides</Button>
         </div>
       </CardContent>
