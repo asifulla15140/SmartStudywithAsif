@@ -6,8 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import type { GenerateBilingualLessonContentInput } from '@/lib/types';
-import { generateBilingualLessonContent } from '@/ai/flows/generate-lesson-content';
+import { getQuestionPaper } from '@/app/actions/get-question-paper';
 import { LessonPreview } from '@/components/lesson-preview';
 import type { LessonContent } from '@/lib/types';
 import { Label } from '@/components/ui/label';
@@ -71,17 +70,19 @@ function QuestionPaperGenerator({ type }: QuestionPaperGeneratorProps) {
     const generatedTopic = `${subject} - ${type} Question Paper`;
     setTopic(generatedTopic);
 
-    const input: GenerateBilingualLessonContentInput = {
+    const input = {
       topic: generatedTopic,
       gradeLevel: 'Grade 10',
-      teachingMethods: ['Question Paper'],
     };
 
     try {
-      const result = await generateBilingualLessonContent(input);
-      if (result) {
+      const result = await getQuestionPaper(input);
+      if (result && 'englishContent' in result) {
         setLessonContent(result);
-      } else {
+      } else if (result && 'error' in result) {
+        throw new Error(result.error);
+      }
+      else {
         throw new Error('AI did not return content.');
       }
     } catch (e: unknown) {

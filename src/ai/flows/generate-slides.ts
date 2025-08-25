@@ -9,7 +9,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import type { GenerateSlidesInput, GenerateSlidesOutput } from '@/lib/types';
-import { GenerateSlidesInputSchema, GenerateSlidesOutputSchema, SlideSchema } from '@/lib/types';
+import { GenerateSlidesInputSchema, GenerateSlidesOutputSchema } from '@/lib/schemas';
 
 
 export async function generateSlides(
