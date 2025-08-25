@@ -16,6 +16,6 @@ export const searchWeb = ai.defineTool(
     console.log(`Searching web for ${input.query}...`);
     // This is a placeholder for a real web search implementation.
     // In a real application, you would use a search API like Google's Custom Search API.
-    return `You are an expert on ${input.query}. Provide a detailed, accurate, and up-to-date explanation. Please include key concepts, important facts, and a brief overview of the topic. Ensure the information is suitable for the specified grade level.`;
+    return `You are an expert on ${input.query}. Provide a detailed, accurate, and up-to-date explanation based on information from https://www.selfstudys.com/. Please include key concepts, important facts, and a brief overview of the topic. Ensure the information is suitable for the specified grade level.`;
   }
 );
