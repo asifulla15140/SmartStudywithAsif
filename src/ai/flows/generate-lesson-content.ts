@@ -60,8 +60,12 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
   Create lesson content in English and Kannada, tailored to the specified grade level and teaching methods.
 
   {{#if isQuestionPaper}}
-  Generate a question paper for the given topic and grade level in both English and Kannada.
-  Also, provide a separate answer key for each question paper.
+  Generate a comprehensive question paper for the given topic and grade level in both English and Kannada.
+  The question paper should be well-structured and suitable for printing. Use a variety of question types (e.g., multiple choice, fill-in-the-blanks, short answer, long answer).
+  Use a clear and organized formatting structure with Roman numerals (I, II, III) for sections, numbers (1, 2, 3) for questions, and letters (a, b, c) for sub-questions or options.
+  
+  Also, provide a separate, detailed answer key for each question paper. The answer key's format must correspond exactly to the question paper's format for easy reference.
+
   The 'englishContent' and 'kannadaContent' fields can contain a brief introduction or summary for the lesson.
   {{else}}
   Generate the lesson content based on the provided teaching methods.
