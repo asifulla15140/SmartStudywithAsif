@@ -121,7 +121,7 @@ export function LessonPreview({ lessonContent, isLoading, error }: LessonPreview
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Generation Failed</AlertTitle>
-            <AlertDescription>There was an error showing the lesson. Failed to fetch.</AlertDescription>
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
         </CardContent>
       </Card>

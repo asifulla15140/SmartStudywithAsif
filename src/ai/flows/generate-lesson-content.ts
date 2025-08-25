@@ -11,6 +11,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { searchWeb } from '../tools/web-search';
 
 const GenerateBilingualLessonContentInputSchema = z.object({
   topic: z.string().describe('The topic of the lesson.'),
@@ -49,11 +50,14 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
   name: 'generateBilingualLessonContentPrompt',
   input: {schema: GenerateBilingualLessonContentInputSchema},
   output: {schema: GenerateBilingualLessonContentOutputSchema},
+  tools: [searchWeb],
   prompt: `You are an experienced teacher creating a bilingual lesson plan.
 
   Topic: {{{topic}}}
   Grade Level: {{{gradeLevel}}}
   Teaching Methods: {{#each teachingMethods}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
+
+  Use the searchWeb tool to find accurate and up-to-date information on the topic.
 
   Create lesson content in English and Kannada, tailored to the specified grade level and teaching methods.
 

@@ -3,3 +3,4 @@ config();
 
 import '@/ai/flows/generate-lesson-content.ts';
 import '@/ai/flows/adapt-lesson-content.ts';
+import '@/ai/tools/web-search.ts';
