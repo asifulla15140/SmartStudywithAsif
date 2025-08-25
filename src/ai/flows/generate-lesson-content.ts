@@ -36,10 +36,6 @@ export type GenerateBilingualLessonContentOutput = z.infer<
   typeof GenerateBilingualLessonContentOutputSchema
 >;
 
-// Helper function to check if an array includes a specific string.
-// Handlebars doesn't have complex logic, so we pass this in.
-const includes = (arr: string[], str: string) => arr.includes(str);
-
 export async function generateBilingualLessonContent(
   input: GenerateBilingualLessonContentInput
 ): Promise<GenerateBilingualLessonContentOutput> {
@@ -48,7 +44,9 @@ export async function generateBilingualLessonContent(
 
 const generateBilingualLessonContentPrompt = ai.definePrompt({
   name: 'generateBilingualLessonContentPrompt',
-  input: {schema: GenerateBilingualLessonContentInputSchema},
+  input: {schema: GenerateBilingualLessonContentInputSchema.extend({
+    isQuestionPaper: z.boolean(),
+  })},
   output: {schema: GenerateBilingualLessonContentOutputSchema},
   tools: [searchWeb],
   prompt: `You are an experienced teacher creating a bilingual lesson plan.
@@ -61,7 +59,7 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
 
   Create lesson content in English and Kannada, tailored to the specified grade level and teaching methods.
 
-  {{#if (includes teachingMethods "Question Paper")}}
+  {{#if isQuestionPaper}}
   Generate a question paper for the given topic and grade level in both English and Kannada.
   Also, provide a separate answer key for each question paper.
   The 'englishContent' and 'kannadaContent' fields can contain a brief introduction or summary for the lesson.
@@ -77,11 +75,11 @@ const generateBilingualLessonContentFlow = ai.defineFlow(
     outputSchema: GenerateBilingualLessonContentOutputSchema,
   },
   async (input) => {
-    // We need to augment the input with the result of the `includes` helper
-    // so the Handlebars template can use it.
+    const isQuestionPaper = input.teachingMethods.includes('Question Paper');
+    
     const augmentedInput = {
       ...input,
-      includes,
+      isQuestionPaper,
     };
     const {output} = await generateBilingualLessonContentPrompt(augmentedInput);
     return output!;
