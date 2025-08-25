@@ -71,7 +71,7 @@ export default function MyLibraryPage() {
                           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                           <AlertDialogDescription>
                             This action cannot be undone. This will permanently delete this lesson from your library.
-                          </AlertDialogDescription>
+                          </Description>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
