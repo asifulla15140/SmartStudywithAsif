@@ -57,7 +57,7 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
 
   Use the searchWeb tool to find accurate and up-to-date information on the topic.
 
-  IMPORTANT: You must generate content in both English and Kannada. Provide the English content in the 'englishContent', 'questionPaperEnglish', and 'answerKeyEnglish' fields. Provide the accurately translated Kannada content in the 'kannadaContent', 'questionPaperKannada', and 'answerKeyKannada' fields respectively. Do NOT mix languages in the output fields.
+  MANDATORY INSTRUCTION: You MUST generate content in both English and Kannada. All English content must go into the 'englishContent', 'questionPaperEnglish', and 'answerKeyEnglish' fields. All Kannada content must be an accurate translation and must go into the 'kannadaContent', 'questionPaperKannada', and 'answerKeyKannada' fields. DO NOT mix languages within a field. English fields should only contain English. Kannada fields should only contain Kannada. This is a strict requirement.
 
   Create lesson content tailored to the specified grade level and teaching methods.
 
