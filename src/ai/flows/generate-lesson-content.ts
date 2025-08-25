@@ -35,12 +35,12 @@ const GenerateBilingualLessonContentOutputSchema = z.object({
   answerKeyKannada: z.string().optional().describe('The answer key for the Kannada question paper. Only generated if "Question Paper" is a teaching method.'),
   questionPaperUrdu: z.string().optional().describe('The generated question paper in Urdu. Only generated if "Question Paper" is a teaching method.'),
   answerKeyUrdu: z.string().optional().describe('The answer key for the Urdu question paper. Only generated if "Question Paper" is a teaching method.'),
-  repeatedQuestionsEnglish: z.string().optional().describe('Extra repeated questions in English for teacher reference.'),
-  repeatedAnswersEnglish: z.string().optional().describe('Answers for the repeated questions in English.'),
-  repeatedQuestionsKannada: z.string().optional().describe('Extra repeated questions in Kannada for teacher reference.'),
-  repeatedAnswersKannada: z.string().optional().describe('Answers for the repeated questions in Kannada.'),
-  repeatedQuestionsUrdu: z.string().optional().describe('Extra repeated questions in Urdu for teacher reference.'),
-  repeatedAnswersUrdu: z.string().optional().describe('Answers for the repeated questions in Urdu.'),
+  repeatedQuestionsEnglish: z.string().optional().describe('A large set of extra repeated questions in English for teacher reference.'),
+  repeatedAnswersEnglish: z.string().optional().describe('Detailed answers for the repeated questions in English.'),
+  repeatedQuestionsKannada: z.string().optional().describe('A large set of extra repeated questions in Kannada for teacher reference.'),
+  repeatedAnswersKannada: z.string().optional().describe('Detailed answers for the repeated questions in Kannada.'),
+  repeatedQuestionsUrdu: z.string().optional().describe('A large set of extra repeated questions in Urdu for teacher reference.'),
+  repeatedAnswersUrdu: z.string().optional().describe('Detailed answers for the repeated questions in Urdu.'),
 });
 export type GenerateBilingualLessonContentOutput = z.infer<
   typeof GenerateBilingualLessonContentOutputSchema
@@ -105,4 +105,3 @@ const generateBilingualLessonContentFlow = ai.defineFlow(
     return output!;
   }
 );
-
