@@ -488,13 +488,13 @@ export function LessonPreview({ lessonContent, topic, isLoading, error }: Lesson
         <Separator />
         <div className="flex flex-wrap gap-2">
           <Button onClick={handleSaveToLibrary} disabled={isSaving || !topic}>
-            {isSaving ? 'Saving...' : <><Save /> Save to Library</>}
+            {isSaving ? 'Saving...' : <><Save className="w-4 h-4 mr-2" /> Save to Library</>}
           </Button>
           <Button variant="outline" onClick={handleExportPdf} disabled={isExporting}>
-            {isExporting ? 'Exporting...' : <><Download /> Export PDF</>}
+            {isExporting ? 'Exporting...' : <><Download className="w-4 h-4 mr-2" /> Export PDF</>}
           </Button>
           <Button variant="outline" onClick={handleExportSlides} disabled={isGeneratingSlides}>
-            {isGeneratingSlides ? 'Generating...' : <><Presentation /> Export Slides</>}
+            {isGeneratingSlides ? 'Generating...' : <><Presentation className="w-4 h-4 mr-2" /> Export Slides</>}
           </Button>
         </div>
       </CardContent>

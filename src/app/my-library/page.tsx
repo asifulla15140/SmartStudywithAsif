@@ -102,7 +102,7 @@ export default function MyLibraryPage() {
                         <AccordionItem value="urdu-content">
                           <AccordionTrigger>اردو مواد</AccordionTrigger>
                           <AccordionContent>
-                             <div className="prose prose-sm max-w-none whitespace-pre-wrap p-2 border rounded-md bg-muted/20">
+                             <div className="prose prose-sm max-w-none whitespace-pre-wrap p-2 border rounded-md bg-muted/20 font-urdu text-lg">
                              {lesson.lessonContent.urduContent}
                             </div>
                           </AccordionContent>
