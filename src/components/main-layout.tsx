@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Library, Settings } from 'lucide-react';
+import { Home, Library, Settings, FileText } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
@@ -25,6 +25,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { href: '/', label: 'Create Lesson', icon: Home },
+    { href: '/question-papers', label: 'Question Papers', icon: FileText },
     { href: '/my-library', label: 'My Library', icon: Library },
   ];
 

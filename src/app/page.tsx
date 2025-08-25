@@ -39,13 +39,9 @@ export default function Home() {
   };
 
   return (
-    <div className="flex-1 items-start px-4 sm:px-6 md:gap-8 lg:grid lg:grid-cols-5">
-      <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-3">
-        <LessonCreatorForm onGenerate={handleGenerateLesson} isLoading={isLoading} />
-      </div>
-      <div className="lg:col-span-2 mt-8 lg:mt-0">
-        <LessonPreview lessonContent={lessonContent} isLoading={isLoading} error={error} />
-      </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-4 sm:p-6">
+      <LessonCreatorForm onGenerate={handleGenerateLesson} isLoading={isLoading} />
+      <LessonPreview lessonContent={lessonContent} isLoading={isLoading} error={error} />
     </div>
   );
 }
