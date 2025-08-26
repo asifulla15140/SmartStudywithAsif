@@ -8,7 +8,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { searchWeb } from '../tools/web-search';
+import { googleSearch } from '@genkit-ai/googleai';
 import { GenerateQuestionPaperInputSchema, GenerateQuestionPaperOutputSchema } from '@/lib/schemas';
 import type { GenerateQuestionPaperInput, GenerateQuestionPaperOutput } from '@/lib/schemas';
 
@@ -23,13 +23,13 @@ const generateQuestionPaperPrompt = ai.definePrompt({
   name: 'generateQuestionPaperPrompt',
   input: {schema: GenerateQuestionPaperInputSchema},
   output: {schema: GenerateQuestionPaperOutputSchema},
-  tools: [searchWeb],
+  tools: [googleSearch],
   prompt: `You are an experienced teacher creating a question paper in English, Kannada, and Urdu. Your response MUST be a valid JSON object that adheres to the provided schema.
 
   Topic: {{{topic}}}
   Grade Level: {{{gradeLevel}}}
 
-  Use the searchWeb tool to find accurate and up-to-date information on the topic.
+  Use the googleSearch tool to find accurate and up-to-date information on the topic.
 
   MANDATORY INSTRUCTION: You MUST generate content in English, Kannada, and Urdu. All English content must go into the 'englishContent', 'questionPaperEnglish', 'answerKeyEnglish', 'repeatedQuestionsEnglish', and 'repeatedAnswersEnglish' fields. All Kannada content must be an accurate translation and must go into the 'kannadaContent', 'questionPaperKannada', 'answerKeyKannada', 'repeatedQuestionsKannada', and 'repeatedAnswersKannada' fields. All Urdu content must be an accurate translation and must go into the 'urduContent', 'questionPaperUrdu', 'answerKeyUrdu', 'repeatedQuestionsUrdu', and 'repeatedAnswersUrdu' fields. DO NOT mix languages within a field. English fields should only contain English. Kannada fields should only contain Kannada. Urdu fields should only contain Urdu. Ensure all content is properly escaped to produce valid JSON. This is a strict requirement.
 
