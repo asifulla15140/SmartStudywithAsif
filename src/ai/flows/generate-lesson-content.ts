@@ -10,7 +10,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { googleSearch } from '@genkit-ai/googleai';
 import type { GenerateBilingualLessonContentInput, GenerateBilingualLessonContentOutput } from '@/lib/types';
 import { GenerateBilingualLessonContentInputSchema, GenerateBilingualLessonContentOutputSchema } from '@/lib/schemas';
 
@@ -27,7 +26,6 @@ const generateBilingualLessonContentPrompt = ai.definePrompt({
     isQuestionPaper: z.boolean(),
   })},
   output: {schema: GenerateBilingualLessonContentOutputSchema},
-  tools: [googleSearch],
   prompt: `You are an experienced teacher creating a lesson plan in English, Kannada, and Urdu. Your response MUST be a valid JSON object that adheres to the provided schema.
 
   Topic: {{{topic}}}

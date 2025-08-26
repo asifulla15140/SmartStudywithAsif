@@ -8,7 +8,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { googleSearch } from '@genkit-ai/googleai';
 import { GenerateQuestionPaperInputSchema, GenerateQuestionPaperOutputSchema } from '@/lib/schemas';
 import type { GenerateQuestionPaperInput, GenerateQuestionPaperOutput } from '@/lib/schemas';
 
@@ -23,7 +22,6 @@ const generateQuestionPaperPrompt = ai.definePrompt({
   name: 'generateQuestionPaperPrompt',
   input: {schema: GenerateQuestionPaperInputSchema},
   output: {schema: GenerateQuestionPaperOutputSchema},
-  tools: [googleSearch],
   prompt: `You are an experienced teacher creating a question paper in English, Kannada, and Urdu. Your response MUST be a valid JSON object that adheres to the provided schema.
 
   Topic: {{{topic}}}
