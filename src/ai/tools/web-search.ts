@@ -2,11 +2,12 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import { google } from '@genkit-ai/googleai';
 
 export const searchWeb = ai.defineTool(
   {
     name: 'searchWeb',
-    description: 'Searches the web for the given query.',
+    description: 'Searches the web for the given query and returns a list of search results.',
     inputSchema: z.object({
       query: z.string(),
     }),
@@ -14,8 +15,11 @@ export const searchWeb = ai.defineTool(
   },
   async (input) => {
     console.log(`Searching web for ${input.query}...`);
-    // This is a placeholder for a real web search implementation.
-    // In a real application, you would use a search API like Google's Custom Search API.
-    return `You are an expert on ${input.query}. Provide a detailed, accurate, and up-to-date explanation based on information from https://www.selfstudys.com/. Please include key concepts, important facts, and a brief overview of the topic. Ensure the information is suitable for the specified grade level.`;
+    
+    const searchResult = await google.search({
+      q: input.query,
+    });
+    
+    return JSON.stringify(searchResult);
   }
 );
