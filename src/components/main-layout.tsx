@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Library, Settings, FileText } from 'lucide-react';
+import { Home, Library, Settings, FileText, Shield } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
@@ -30,6 +30,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   ];
 
   const bottomNavItems = [
+    { href: '/admin', label: 'Admin', icon: Shield },
     { href: '/settings', label: 'Settings', icon: Settings },
   ]
 
